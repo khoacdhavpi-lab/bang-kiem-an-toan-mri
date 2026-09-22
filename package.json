@@ -1,0 +1,20 @@
+{
+  "name": "mri-safety-checklist",
+  "version": "1.0.0",
+  "description": "Hệ thống Bảng kiểm an toàn chụp Cộng hưởng từ (MRI) trực tuyến đa ngôn ngữ & Cổng quản trị KTV",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "mri",
+    "safety",
+    "checklist",
+    "medical",
+    "hospital",
+    "vietnam"
+  ],
+  "author": "Antigravity & Deepmind Team",
+  "license": "MIT"
+}

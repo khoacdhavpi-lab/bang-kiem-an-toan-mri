@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Bảng Kiểm An Toàn Chụp MRI - Khảo Sát Trực Tuyến Đa Ngôn Ngữ</title>
+  <meta name="description" content="Hệ thống khảo sát an toàn trước khi chụp cộng hưởng từ (MRI) trực tuyến đa ngôn ngữ dành cho bệnh nhân" />
+  <link rel="icon" type="image/jpeg" href="/brand/logo.jpg" />
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="app-header no-print">
+    <div class="header-container">
+      <a href="/" class="brand-section" title="Bảng kiểm an toàn MRI">
+        <img src="/brand/logo.jpg" alt="Logo Y Tế" class="brand-logo" onerror="this.src='/brand/logo.jpg'" />
+        <div class="brand-text-block">
+          <span class="brand-dept-title" id="txt-header-dept">KHOA CHẨN ĐOÁN HÌNH ẢNH</span>
+          <span class="brand-sub-title" id="txt-header-sub">An toàn chụp MRI trực tuyến</span>
+        </div>
+      </a>
+
+      <!-- Quick Staff Button in Header -->
+      <div>
+        <button type="button" class="staff-link-btn" id="btn-open-staff-login-header" title="Dành cho Kỹ thuật viên">
+          🔒 <span class="hidden-xs">Kỹ thuật viên</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Patient Content -->
+  <main class="main-wrapper no-print">
+    <!-- Language Selector Card -->
+    <div class="lang-selector-card">
+      <p class="lang-selector-label" id="txt-select-language">
+        🌐 Vui lòng chọn ngôn ngữ của bạn / Please select your language:
+      </p>
+      <div class="lang-grid" id="lang-button-container">
+        <!-- 13 language buttons rendered dynamically via JS -->
+      </div>
+    </div>
+
+    <!-- MRI Guidelines & Instruction Banner -->
+    <section class="instruction-card">
+      <div class="instruction-header" id="btn-toggle-instructions">
+        <div class="instruction-header-left">
+          <div class="instruction-header-icon">✨</div>
+          <div>
+            <h2 style="font-size: 17px; font-weight: 700;" id="txt-instructions-title">Hướng dẫn Chụp Cộng Hưởng Từ (MRI)</h2>
+            <p style="font-size: 12px; opacity: 0.9;" id="txt-instructions-subtitle">An toàn người bệnh là ưu tiên hàng đầu</p>
+          </div>
+        </div>
+        <span id="instruction-toggle-icon" style="font-size: 18px;">▲</span>
+      </div>
+
+      <div class="instruction-body" id="instruction-content">
+        <div class="instruction-intro" id="txt-intro">
+          Chụp cộng hưởng từ (MRI) là phương pháp chẩn đoán hình ảnh an toàn, không dùng tia X...
+        </div>
+
+        <div class="instruction-grid">
+          <!-- Box 1 -->
+          <div class="instruction-box">
+            <div class="instruction-box-title blue">
+              ⏱️ <span id="txt-section1-title">1. Quá trình thực hiện chụp</span>
+            </div>
+            <ul class="instruction-list" id="list-section1"></ul>
+          </div>
+
+          <!-- Box 2 -->
+          <div class="instruction-box warning-theme">
+            <div class="instruction-box-title amber">
+              🧲 <span id="txt-section2-title">2. Đảm bảo an toàn từ trường</span>
+            </div>
+            <ul class="instruction-list" id="list-section2"></ul>
+          </div>
+        </div>
+
+        <div style="text-align: center; padding-top: 6px;">
+          <button type="button" class="submit-btn" style="max-width: 320px; margin: 0 auto; padding: 10px 18px; font-size: 14.5px;" id="btn-scroll-to-form">
+            <span id="txt-start-btn">Bắt đầu điền Bảng kiểm an toàn</span> ↓
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Patient Demographic Form -->
+    <form id="patient-safety-form">
+      <div class="form-card" id="form-patient-anchor">
+        <div class="card-title-row">
+          👤 <span id="txt-patient-info-title">Thông tin bệnh nhân</span>
+        </div>
+
+        <div class="input-grid">
+          <!-- Full Name -->
+          <div class="form-group col-span-2">
+            <label class="form-label" for="inp-fullName">
+              <span id="lbl-fullName">Họ và tên bệnh nhân</span> <span class="required-star">*</span>
+            </label>
+            <input type="text" id="inp-fullName" class="form-input" required placeholder="Nhập họ và tên đầy đủ" />
+          </div>
+
+          <!-- Patient ID -->
+          <div class="form-group">
+            <label class="form-label" for="inp-patientId">
+              <span id="lbl-patientId">Mã số bệnh nhân (ID)</span>
+            </label>
+            <input type="text" id="inp-patientId" class="form-input" placeholder="Nhập mã ID (nếu có)" />
+          </div>
+
+          <!-- Age or Year of Birth -->
+          <div class="form-group">
+            <label class="form-label" for="inp-ageOrYob">
+              <span id="lbl-ageOrYob">Tuổi / Năm sinh</span> <span class="required-star">*</span>
+            </label>
+            <input type="text" id="inp-ageOrYob" class="form-input" required placeholder="Ví dụ: 35 hoặc 1989" />
+          </div>
+
+          <!-- Gender Toggle -->
+          <div class="form-group">
+            <label class="form-label">
+              <span id="lbl-gender">Giới tính</span> <span class="required-star">*</span>
+            </label>
+            <div class="toggle-group">
+              <button type="button" class="toggle-btn active" id="btn-gender-male" data-gender="male">
+                👨 <span id="lbl-male">Nam</span>
+              </button>
+              <button type="button" class="toggle-btn" id="btn-gender-female" data-gender="female">
+                👩 <span id="lbl-female">Nữ</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Weight -->
+          <div class="form-group">
+            <label class="form-label" for="inp-weight">
+              <span id="lbl-weight">Cân nặng (kg)</span>
+            </label>
+            <input type="number" id="inp-weight" class="form-input" placeholder="Ví dụ: 60" min="1" max="300" />
+          </div>
+
+          <!-- Phone -->
+          <div class="form-group">
+            <label class="form-label" for="inp-phone">
+              <span id="lbl-phone">Số điện thoại liên hệ</span>
+            </label>
+            <input type="tel" id="inp-phone" class="form-input" placeholder="Nhập số điện thoại" />
+          </div>
+
+          <!-- Patient Type -->
+          <div class="form-group">
+            <label class="form-label">
+              <span id="lbl-patientType">Đối tượng</span>
+            </label>
+            <div class="toggle-group">
+              <button type="button" class="toggle-btn" id="btn-type-inpatient" data-type="inpatient">
+                <span id="lbl-inpatient">Nội trú</span>
+              </button>
+              <button type="button" class="toggle-btn active" id="btn-type-outpatient" data-type="outpatient">
+                <span id="lbl-outpatient">Ngoại trú</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Department / Room -->
+          <div class="form-group">
+            <label class="form-label" for="inp-departmentRoom">
+              <span id="lbl-departmentRoom">Khoa / Phòng / Địa chỉ</span>
+            </label>
+            <input type="text" id="inp-departmentRoom" class="form-input" placeholder="Ví dụ: Khoa Cấp cứu..." />
+          </div>
+
+          <!-- Scan Area -->
+          <div class="form-group col-span-2">
+            <label class="form-label" for="inp-scanArea">
+              <span id="lbl-scanArea">Chỉ định chụp (Vùng chụp)</span>
+            </label>
+            <input type="text" id="inp-scanArea" class="form-input" placeholder="Ví dụ: MRI Sọ não, Cột sống thắt lưng, Khớp gối..." />
+          </div>
+        </div>
+      </div>
+
+      <!-- Questionnaire Card -->
+      <div class="form-card">
+        <div class="card-title-row">
+          📋 <span id="txt-questions-title">Bảng câu hỏi an toàn trước khi chụp</span>
+        </div>
+
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 12px; margin-bottom: 16px; font-size: 13.5px; color: #78350f; display: flex; align-items: flex-start; gap: 8px;">
+          <span>ℹ️</span>
+          <span id="txt-questions-warning">Để đảm bảo an toàn tính mạng và chất lượng hình ảnh, quý vị vui lòng đọc kỹ và trả lời trung thực:</span>
+        </div>
+
+        <div id="questions-container">
+          <!-- Dynamic 15 questions rendered here -->
+        </div>
+      </div>
+
+      <!-- Consent & Signature Card -->
+      <div class="form-card">
+        <div class="card-title-row">
+          🛡️ <span id="txt-consent-title">Cam kết của người bệnh / Thân nhân</span>
+        </div>
+
+        <div class="consent-box">
+          <label class="consent-label">
+            <input type="checkbox" id="chk-consent" class="consent-checkbox" required />
+            <span id="txt-consent-checkbox">
+              Tôi xác nhận những câu trả lời trên là hoàn toàn chính xác và cam kết đồng ý để các y bác sĩ, kỹ thuật viên thực hiện kỹ thuật chụp MRI cho tôi (hoặc người thân của tôi).
+            </span>
+          </label>
+        </div>
+
+        <div class="signature-wrapper">
+          <div class="signature-label-row">
+            <label class="form-label" style="display: flex; align-items: center; gap: 6px;">
+              ✍️ <span id="lbl-signature">Ký tên xác nhận (vẽ trực tiếp bằng tay trên ô dưới):</span> <span class="required-star">*</span>
+            </label>
+            <button type="button" class="clear-btn" id="btn-clear-signature">
+              <span id="lbl-clear-signature">Xóa chữ ký vẽ lại</span>
+            </button>
+          </div>
+
+          <div class="signature-canvas-container" id="signature-container">
+            <canvas id="signature-canvas" class="signature-canvas"></canvas>
+            <div class="signature-placeholder" id="signature-placeholder">
+              <span style="font-size: 24px; margin-bottom: 4px;">✍️</span>
+              <span id="txt-signature-placeholder">Dùng ngón tay hoặc bút cảm ứng vẽ chữ ký vào khung trên</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button type="submit" class="submit-btn" id="btn-submit-form">
+          <span>📨</span>
+          <span id="txt-submit-btn">GỬI BẢNG KIỂM AN TOÀN</span>
+        </button>
+        <p style="text-align: center; font-size: 11.5px; color: #94a3b8; margin-top: 10px;">
+          * Vui lòng tích đồng ý cam kết và ký tên vào ô trên để hoàn tất
+        </p>
+      </div>
+    </form>
+  </main>
+
+  <!-- Footer -->
+  <footer class="app-footer no-print">
+    <div class="footer-content">
+      <p style="font-style: italic; color: #475569;" id="txt-footer-quote">
+        “Chiến thắng bệnh tật bằng y đức và tiến bộ y học”
+      </p>
+      <p style="font-weight: 700; text-transform: uppercase; color: #334155;">
+        KHOA CHẨN ĐOÁN HÌNH ẢNH • PHÒNG CHỤP CỘNG HƯỞNG TỪ (MRI)
+      </p>
+      <p style="font-size: 11px; color: #94a3b8;" id="txt-footer-notice">
+        Hệ thống Bảng kiểm an toàn chụp Cộng hưởng từ (MRI) trực tuyến đa ngôn ngữ
+      </p>
+
+      <!-- Discreet Staff Login Link -->
+      <div style="padding-top: 8px;">
+        <button type="button" class="staff-link-btn" id="btn-open-staff-login" title="Dành cho Kỹ thuật viên MRI">
+          🔒 <span id="txt-staff-portal-btn">Dành riêng cho Kỹ thuật viên MRI</span>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Modal: Technician Authentication -->
+  <div class="modal-overlay" id="staff-login-modal">
+    <div class="modal-card">
+      <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px;">
+        <h3 style="font-size: 17px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px;">
+          🔐 <span>Xác thực Kỹ thuật viên MRI</span>
+        </h3>
+        <button type="button" id="btn-close-staff-modal" style="background:none; border:none; font-size:20px; cursor:pointer; color:#94a3b8;">&times;</button>
+      </div>
+
+      <form id="staff-login-form">
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 14px;">
+          Vui lòng nhập mật khẩu KTV hoặc tài khoản quản trị để xem danh sách bệnh nhân và in phiếu:
+        </p>
+
+        <div class="form-group" style="margin-bottom: 14px;">
+          <label class="form-label" for="inp-staff-user">Tài khoản hoặc Mã bảo vệ</label>
+          <input type="text" id="inp-staff-user" class="form-input" placeholder="Mặc định: admin hoặc KTV" value="admin" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label class="form-label" for="inp-staff-pass">Mật khẩu</label>
+          <input type="password" id="inp-staff-pass" class="form-input" placeholder="Mật khẩu cố định hoặc cá nhân" required />
+          <p style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+            Gợi ý: Mật khẩu mặc định hệ thống là <code>mrivinhphucvpi</code>
+          </p>
+        </div>
+
+        <div id="staff-login-error" style="display: none; background: #fef2f2; border: 1px solid #fecaca; color: #dc2626; padding: 8px 12px; border-radius: 8px; font-size: 13px; margin-bottom: 14px;"></div>
+
+        <button type="submit" class="submit-btn" style="padding: 11px; font-size: 15px;">
+          🚀 ĐĂNG NHẬP HỆ THỐNG KTV
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Submission Success -->
+  <div class="modal-overlay" id="success-modal">
+    <div class="modal-card" style="text-align: center;">
+      <div style="font-size: 54px; margin-bottom: 10px;">✅</div>
+      <h3 style="font-size: 20px; font-weight: 800; color: #047857; margin-bottom: 10px;" id="txt-modal-success-title">
+        Gửi bảng kiểm thành công!
+      </h3>
+      <p style="font-size: 14px; color: #334155; line-height: 1.6; margin-bottom: 16px;" id="txt-modal-success-msg">
+        Thông tin khảo sát an toàn của bạn đã được chuyển đến máy trạm của Kỹ thuật viên MRI. Vui lòng ngồi tại sảnh chờ, kỹ thuật viên sẽ gọi tên bạn vào phòng chụp.
+      </p>
+
+      <div style="background: #f1f5f9; border-radius: 12px; padding: 12px; margin-bottom: 20px; text-align: left; font-size: 13px;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+          <span style="color: #64748b;" id="txt-modal-code-lbl">Mã số tiếp nhận:</span>
+          <strong style="color: #0284c7; font-size: 15px;" id="modal-patient-code">MRI-0000</strong>
+        </div>
+        <div style="display: flex; justify-content: space-between;">
+          <span style="color: #64748b;" id="txt-modal-time-lbl">Thời gian nộp:</span>
+          <span id="modal-patient-time" style="font-weight: 600;">--:--</span>
+        </div>
+      </div>
+
+      <button type="button" class="submit-btn" id="btn-close-success-modal" style="padding: 10px 18px; font-size: 14.5px;">
+        <span id="txt-modal-new-btn">Hoàn tất / Gửi bảng kiểm mới</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- A4 PRINT TEMPLATE CONTAINER (Hidden on screen, shown in print) -->
+  <!-- ======================================================== -->
+  <div id="print-container" class="print-only" style="display: none;">
+    <!-- Injected dynamically when printing -->
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/translations.js"></script>
+  <script src="/js/signature.js"></script>
+  <script src="/js/qr-generator.js"></script>
+  <script src="/js/cloud-db.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

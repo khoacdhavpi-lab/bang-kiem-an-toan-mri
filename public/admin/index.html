@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cổng Quản Trị Kỹ Thuật Viên MRI - Bảng Kiểm An Toàn</title>
+  <link rel="icon" type="image/jpeg" href="/brand/logo.jpg" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/admin/admin.css" />
+</head>
+<body class="admin-body">
+  <!-- Admin Top Bar -->
+  <header class="admin-header no-print">
+    <div class="admin-header-left">
+      <img src="/brand/logo.jpg" alt="Logo" class="admin-logo" onerror="this.src='/brand/logo.jpg'" />
+      <div>
+        <h1 class="admin-title">BẢNG ĐIỀU KHIỂN KỸ THUẬT VIÊN MRI</h1>
+        <p class="admin-subtitle">Theo dõi & Thẩm định Bảng kiểm An toàn Cộng hưởng từ</p>
+      </div>
+    </div>
+
+    <div class="admin-header-right">
+      <!-- Audio Notification Toggle -->
+      <button type="button" class="admin-btn secondary" id="btn-toggle-sound" title="Bật/Tắt chuông thông báo khi có bệnh nhân nộp phiếu">
+        🔔 <span id="txt-sound-status">Chuông: BẬT</span>
+      </button>
+
+      <!-- Refresh Button -->
+      <button type="button" class="admin-btn secondary" id="btn-manual-refresh" title="Làm mới danh sách">
+        🔄 Làm mới
+      </button>
+
+      <!-- Current User Badge & Logout -->
+      <div class="user-pill">
+        <span class="user-role-tag" id="user-role-badge">ADMIN</span>
+        <span class="user-fullname" id="user-fullname-display">KTV Trưởng</span>
+      </div>
+
+      <button type="button" class="admin-btn danger" id="btn-logout" title="Đăng xuất">
+        🚪 Đăng xuất
+      </button>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <nav class="admin-nav no-print">
+    <div class="nav-container">
+      <button type="button" class="nav-tab active" data-tab="tab-submissions">
+        📋 Danh sách phiếu bệnh nhân (<span id="badge-total-count">0</span>)
+      </button>
+      <button type="button" class="nav-tab" data-tab="tab-qr-poster">
+        🖨️ In Poster Mã QR phòng chụp
+      </button>
+      <button type="button" class="nav-tab" data-tab="tab-users" id="nav-tab-users">
+        👥 Phân quyền KTV cấp dưới
+      </button>
+      <button type="button" class="nav-tab" data-tab="tab-settings">
+        ⚙️ Cài đặt đơn vị
+      </button>
+      <a href="/" target="_blank" class="nav-tab external-link" title="Mở trang bệnh nhân ở tab mới">
+        🌐 Mở trang Bệnh nhân ↗
+      </a>
+    </div>
+  </nav>
+
+  <!-- Main Container -->
+  <main class="admin-main no-print">
+    <!-- ============================================== -->
+    <!-- TAB 1: DANH SÁCH BỆNH NHÂN ĐIỀN PHIẾU           -->
+    <!-- ============================================== -->
+    <div class="tab-pane active" id="tab-submissions">
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">📋</div>
+          <div class="stat-info">
+            <div class="stat-value" id="stat-total-today">0</div>
+            <div class="stat-label">Tổng phiếu hôm nay</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon red">⚠️</div>
+          <div class="stat-info">
+            <div class="stat-value text-red" id="stat-high-risk">0</div>
+            <div class="stat-label">Cảnh báo Nguy cơ cao</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-info">
+            <div class="stat-value text-green" id="stat-safe">0</div>
+            <div class="stat-label">Đã kiểm tra an toàn</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon yellow">⏳</div>
+          <div class="stat-info">
+            <div class="stat-value text-amber" id="stat-pending">0</div>
+            <div class="stat-label">Đang chờ KTV duyệt</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Filters & Actions Bar -->
+      <div class="filter-bar">
+        <div class="filter-left">
+          <input type="text" id="inp-search" class="admin-input search-input" placeholder="🔍 Tìm theo Họ tên hoặc Mã BN..." />
+          <select id="sel-filter-status" class="admin-select">
+            <option value="all">Tất cả mức độ</option>
+            <option value="high_risk">⚠️ Chỉ xem Nguy cơ cao</option>
+            <option value="safe">✅ Chỉ xem An toàn</option>
+            <option value="pending">⏳ Chờ duyệt</option>
+          </select>
+          <input type="date" id="inp-filter-date" class="admin-input date-input" />
+        </div>
+
+        <div class="filter-right">
+          <button type="button" class="admin-btn success" id="btn-export-excel">
+            📥 Xuất Excel / CSV
+          </button>
+        </div>
+      </div>
+
+      <!-- Patients Table -->
+      <div class="table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width: 100px;">Mã phiếu</th>
+              <th>Thời gian</th>
+              <th>Họ và tên bệnh nhân</th>
+              <th style="width: 90px;">Tuổi/Năm</th>
+              <th style="width: 70px;">Giới</th>
+              <th>Chỉ định / Vùng chụp</th>
+              <th>Đánh giá an toàn</th>
+              <th>Trạng thái KTV</th>
+              <th style="text-align: right; width: 170px;">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody id="patient-table-body">
+            <tr>
+              <td colspan="9" style="text-align: center; padding: 40px; color: #94a3b8;">
+                Đang tải danh sách phiếu khảo sát...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 2: IN POSTER MÃ QR DÁN PHÒNG CHỤP          -->
+    <!-- ============================================== -->
+    <div class="tab-pane" id="tab-qr-poster">
+      <div class="poster-settings-card">
+        <h2 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #0f172a;">
+          🖨️ Xuất Poster Mã QR Hướng Dẫn Bệnh Nhân (Khổ A4)
+        </h2>
+        <p style="font-size: 13.5px; color: #64748b; margin-bottom: 16px;">
+          Poster được thiết kế theo kích thước A4 tiêu chuẩn, chứa mã QR dẫn thẳng tới Bảng kiểm an toàn MRI trực tuyến đa ngôn ngữ. KTV có thể in trực tiếp ra giấy để dán ngay trước cửa phòng chụp.
+        </p>
+
+        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 20px;">
+          <label style="font-size: 13.5px; font-weight: 600;">Đường dẫn trang web (URL):</label>
+          <input type="text" id="inp-poster-url" class="admin-input" style="flex: 1; max-width: 450px;" />
+          <button type="button" class="admin-btn primary" id="btn-update-poster-qr">Cập nhật mã QR</button>
+          <button type="button" class="admin-btn success" id="btn-print-poster">🖨️ IN POSTER A4 NGAY</button>
+        </div>
+
+        <!-- Poster Preview Box -->
+        <div class="poster-preview-wrapper" id="poster-preview-area">
+          <div class="poster-a4-frame">
+            <div class="poster-header">
+              <img src="/brand/logo.jpg" alt="Logo" class="poster-logo" />
+              <div>
+                <h3 class="poster-hosp-name" id="poster-disp-hosp">BỆNH VIỆN ĐA KHOA VĨNH PHÚC</h3>
+                <p class="poster-dept-name" id="poster-disp-dept">KHOA CHẨN ĐOÁN HÌNH ẢNH • PHÒNG CHỤP CỘNG HƯỞNG TỪ (MRI)</p>
+              </div>
+            </div>
+
+            <div class="poster-hero-title">
+              <h2>HƯỚNG DẪN BẢNG KIỂM AN TOÀN MRI</h2>
+              <p>MRI PATIENT SAFETY SCREENING CHECKLIST</p>
+            </div>
+
+            <div class="poster-qr-section">
+              <div class="poster-qr-box" id="poster-qr-svg-container">
+                <!-- Dynamic QR SVG -->
+              </div>
+              <div class="poster-flags-row">
+                <span>🇻🇳 Tiếng Việt</span> • <span>🇬🇧 English</span> • <span>🇨🇳 中文</span> • <span>🇰🇷 한국어</span> • <span>🇯🇵 日本語</span> • <span>🇫🇷 Français</span> • <span>🇷🇺 Русский</span>
+              </div>
+            </div>
+
+            <div class="poster-steps-grid">
+              <div class="poster-step-card">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                  <h4>Mở Camera Điện Thoại</h4>
+                  <p>Bật máy ảnh điện thoại hoặc Zalo để quét mã QR phía trên.</p>
+                </div>
+              </div>
+              <div class="poster-step-card">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                  <h4>Chọn Ngôn Ngữ & Điền</h4>
+                  <p>Lựa chọn ngôn ngữ phù hợp, trả lời các câu hỏi và ký tên xác nhận.</p>
+                </div>
+              </div>
+              <div class="poster-step-card">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                  <h4>Chờ KTV Gọi Vào Chụp</h4>
+                  <p>Thông tin tự động truyền về máy trạm. Vui lòng ngồi chờ gọi tên.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="poster-footer">
+              <p>⚠️ <strong>LƯU Ý:</strong> Tháo bỏ toàn bộ kim loại, đồng hồ, điện thoại, thẻ từ trước khi bước vào phòng máy MRI.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 3: PHÂN QUYỀN KTV CẤP DƯỚI                 -->
+    <!-- ============================================== -->
+    <div class="tab-pane" id="tab-users">
+      <div class="admin-card">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px;">
+          <div>
+            <h2 style="font-size: 18px; font-weight: 700; color: #0f172a;">
+              👥 Quản Lý & Phân Quyền Kỹ Thuật Viên MRI
+            </h2>
+            <p style="font-size: 13px; color: #64748b;">
+              Quản trị viên có thể tạo tài khoản riêng cho từng KTV để phân quyền giám sát, đánh giá an toàn và theo dõi ca trực.
+            </p>
+          </div>
+          <button type="button" class="admin-btn primary" id="btn-open-create-user-modal">
+            ➕ Thêm tài khoản KTV mới
+          </button>
+        </div>
+
+        <div class="table-container">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Họ và tên KTV</th>
+                <th>Tên đăng nhập (Username)</th>
+                <th>Vai trò (Phân quyền)</th>
+                <th>Trạng thái</th>
+                <th>Ngày tạo</th>
+                <th style="text-align: right;">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody id="user-table-body">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 4: CÀI ĐẶT ĐƠN VỊ                           -->
+    <!-- ============================================== -->
+    <div class="tab-pane" id="tab-settings">
+      <div class="admin-card" style="max-width: 680px;">
+        <h2 style="font-size: 18px; font-weight: 700; color: #0f172a; margin-bottom: 14px;">
+          ⚙️ Cấu Hình Thông Tin Đơn Vị & Phiếu In A4
+        </h2>
+        <form id="settings-form">
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label">Tên Bệnh viện / Cơ sở Y tế</label>
+            <input type="text" id="set-hosp-name" class="form-input" value="BỆNH VIỆN ĐA KHOA VĨNH PHÚC" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label">Tên Khoa / Phòng chụp</label>
+            <input type="text" id="set-dept-name" class="form-input" value="KHOA CHẨN ĐOÁN HÌNH ẢNH • PHÒNG CHỤP CỘNG HƯỞNG TỪ (MRI)" />
+          </div>
+
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label">Mật khẩu nhanh KTV (mặc định)</label>
+            <input type="text" id="set-quick-pin" class="form-input" value="mrivinhphucvpi" />
+            <p style="font-size: 11.5px; color: #94a3b8; margin-top: 4px;">
+              Mật khẩu cố định dùng để mở nhanh danh sách cho các KTV không dùng tài khoản riêng.
+            </p>
+          </div>
+
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label class="form-label">Bác sĩ / KTV Phụ trách phòng MRI</label>
+            <input type="text" id="set-lead-doctor" class="form-input" placeholder="Ví dụ: BS.CKI Nguyễn Văn B / KTV Trưởng" />
+          </div>
+
+          <button type="submit" class="admin-btn primary" style="padding: 10px 20px;">
+            💾 Lưu cấu hình đơn vị
+          </button>
+        </form>
+
+        <!-- Cloud Database Configuration for Vercel 100% Online -->
+        <div style="margin-top: 28px; padding-top: 20px; border-top: 2px dashed #e2e8f0;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+            <h3 style="font-size: 16px; font-weight: 700; color: #0369a1; display: flex; align-items: center; gap: 8px;">
+              ☁️ Đồng Bộ Dữ Liệu Đám Mây (100% Online & Miễn Phí)
+            </h3>
+            <span id="cloud-status-badge" style="font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0;">
+              ● Sẵn sàng kết nối
+            </span>
+          </div>
+
+          <p style="font-size: 12.5px; color: #64748b; line-height: 1.5; margin-bottom: 12px;">
+            Để bệnh nhân quét mã QR ở bất kỳ đâu trên điện thoại 4G/WiFi và KTV tại phòng máy nhìn thấy ngay lập tức trên Vercel, bạn chỉ cần liên kết với Google Firebase Realtime Database miễn phí vĩnh viễn (không cần thẻ tín dụng).
+          </p>
+
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label">Đường dẫn Firebase Database URL</label>
+            <input type="text" id="set-firebase-url" class="form-input" placeholder="Ví dụ: https://mri-safety-vinhphuc-default-rtdb.firebaseio.com" />
+            <p style="font-size: 11px; color: #94a3b8; margin-top: 4px;">
+              Nhập link Database của bạn từ Firebase Console (hoặc biến <code>FIREBASE_DATABASE_URL</code> trên Vercel).
+            </p>
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button type="button" class="admin-btn success" id="btn-save-cloud-db">
+              ⚡ Lưu & Bật đồng bộ Online
+            </button>
+            <button type="button" class="admin-btn secondary" id="btn-test-cloud-db">
+              🔍 Thử kết nối đám mây
+            </button>
+          </div>
+
+          <div id="cloud-test-result" style="display: none; margin-top: 10px; font-size: 12.5px; padding: 8px 12px; border-radius: 8px;"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============================================== -->
+  <!-- MODAL: XEM CHI TIẾT & THẨM ĐỊNH PHIẾU BỆNH NHÂN -->
+  <!-- ============================================== -->
+  <div class="modal-overlay" id="modal-patient-detail">
+    <div class="modal-card modal-large">
+      <div class="modal-header-row">
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <span style="font-size: 24px;">📄</span>
+          <div>
+            <h3 style="font-size: 18px; font-weight: 700; color: #0f172a;" id="detail-patient-name">NGUYỄN VĂN A</h3>
+            <p style="font-size: 12.5px; color: #64748b;" id="detail-meta-line">Mã: MRI-1001 • Thời gian: 15:30</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" class="admin-btn primary" id="btn-print-from-detail">
+            🖨️ In phiếu A4 ngay
+          </button>
+          <button type="button" class="close-modal-btn" id="btn-close-detail">&times;</button>
+        </div>
+      </div>
+
+      <div class="modal-body-scroll">
+        <!-- Patient Demographics Summary -->
+        <div class="detail-section">
+          <h4 class="detail-section-title">👤 Thông tin hành chính</h4>
+          <div class="info-grid-3">
+            <div><span class="text-muted">Tuổi / Năm sinh:</span> <strong id="dt-age">35</strong></div>
+            <div><span class="text-muted">Giới tính:</span> <strong id="dt-gender">Nam</strong></div>
+            <div><span class="text-muted">Cân nặng:</span> <strong id="dt-weight">65 kg</strong></div>
+            <div><span class="text-muted">Số điện thoại:</span> <strong id="dt-phone">--</strong></div>
+            <div><span class="text-muted">Khoa / Phòng:</span> <strong id="dt-dept">Cấp cứu</strong></div>
+            <div><span class="text-muted">Đối tượng:</span> <strong id="dt-type">Ngoại trú</strong></div>
+            <div style="grid-column: span 3;"><span class="text-muted">Chỉ định chụp:</span> <strong id="dt-scanArea" style="color: #0284c7;">MRI Sọ não</strong></div>
+          </div>
+        </div>
+
+        <!-- Risk Alert Banner if any -->
+        <div id="dt-risk-banner" style="display: none; padding: 12px; border-radius: 10px; margin-bottom: 14px; font-size: 13.5px; font-weight: 600;"></div>
+
+        <!-- 15 Questions Breakdown -->
+        <div class="detail-section">
+          <h4 class="detail-section-title">📋 Chi tiết 15 câu hỏi khảo sát an toàn</h4>
+          <div id="dt-questions-list" class="dt-questions-table">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+
+        <!-- Patient Signature View -->
+        <div class="detail-section">
+          <h4 class="detail-section-title">✍️ Chữ ký xác nhận của Người bệnh / Thân nhân</h4>
+          <div class="sig-preview-box">
+            <img id="dt-sig-image" src="" alt="Chữ ký bệnh nhân" class="dt-signature-img" />
+          </div>
+        </div>
+
+        <!-- KTV Evaluation Box -->
+        <div class="detail-section ktv-eval-box">
+          <h4 class="detail-section-title" style="color: #0369a1;">🩺 Đánh giá an toàn & Kết luận của Kỹ thuật viên MRI</h4>
+          <div class="input-grid" style="margin-top: 10px;">
+            <div class="form-group">
+              <label class="form-label">Kết luận điều kiện chụp</label>
+              <select id="dt-ktv-status" class="admin-select">
+                <option value="safe">🟢 ĐỦ ĐIỀU KIỆN CHỤP AN TOÀN</option>
+                <option value="warning">🟡 CẦN LƯU Ý / HỘI CHẨN BÁC SĨ</option>
+                <option value="contraindicated">🔴 CHỐNG CHỈ ĐỊNH CHỤP MRI</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tên Kỹ thuật viên phụ trách</label>
+              <input type="text" id="dt-ktv-name" class="form-input" placeholder="Nhập tên KTV" />
+            </div>
+
+            <div class="form-group col-span-2">
+              <label class="form-label">Ghi chú của KTV (nếu có)</label>
+              <input type="text" id="dt-ktv-notes" class="form-input" placeholder="Ví dụ: Đã tháo răng giả, chuẩn bị nút bịt tai chống ồn..." />
+            </div>
+          </div>
+
+          <div style="margin-top: 14px; text-align: right;">
+            <button type="button" class="admin-btn primary" id="btn-save-ktv-eval">
+              💾 Lưu đánh giá của KTV
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- MODAL: THÊM TÀI KHOẢN KTV                      -->
+  <!-- ============================================== -->
+  <div class="modal-overlay" id="modal-create-user">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h3 style="font-size: 17px; font-weight: 700; color: #0f172a;">➕ Thêm tài khoản KTV cấp dưới</h3>
+        <button type="button" class="close-modal-btn" id="btn-close-create-user">&times;</button>
+      </div>
+
+      <form id="form-create-user">
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Họ và tên KTV <span class="required-star">*</span></label>
+          <input type="text" id="new-user-fullname" class="form-input" required placeholder="VD: KTV Nguyễn Văn Nam" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Tên đăng nhập (Username) <span class="required-star">*</span></label>
+          <input type="text" id="new-user-name" class="form-input" required placeholder="VD: ktv_nam" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 12px;">
+          <label class="form-label">Mật khẩu đăng nhập <span class="required-star">*</span></label>
+          <input type="password" id="new-user-pass" class="form-input" required placeholder="Tối thiểu 6 ký tự" />
+        </div>
+
+        <div class="form-group" style="margin-bottom: 18px;">
+          <label class="form-label">Vai trò / Phân quyền</label>
+          <select id="new-user-role" class="admin-select">
+            <option value="ktv">Kỹ thuật viên (Xem, thẩm định & in phiếu)</option>
+            <option value="admin">Quản trị viên (Toàn quyền quản trị)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="admin-btn primary" style="width: 100%; padding: 11px;">
+          Tạo tài khoản KTV
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- A4 PRINT LAYOUT CONTAINER (Dành riêng cho máy in) -->
+  <!-- ============================================== -->
+  <div id="print-a4-area" class="print-only" style="display: none;">
+    <!-- Dữ liệu phiếu chuẩn A4 sẽ được render tại đây khi KTV bấm In -->
+  </div>
+
+  <!-- Audio Element for notification chime -->
+  <audio id="audio-chime" preload="auto">
+    <source src="data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU..." type="audio/wav">
+  </audio>
+
+  <!-- Scripts -->
+  <script src="/js/translations.js"></script>
+  <script src="/js/qr-generator.js"></script>
+  <script src="/js/cloud-db.js"></script>
+  <script src="/admin/admin.js"></script>
+</body>
+</html>
