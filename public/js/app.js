@@ -462,44 +462,42 @@ function initStaffLoginModal() {
     }
     modal.classList.add('open');
     document.getElementById('inp-staff-pass').focus();
-  };
-
-  if (openBtn1) openBtn1.addEventListener('click', openModal);
-  if (openBtn2) openBtn2.addEventListener('click', openModal);
-  if (closeBtn) closeBtn.addEventListener('click', () => modal.classList.remove('open'));
-
-  // Đóng modal khi bấm ra ngoài
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) modal.classList.remove('open');
-  });
-
-  if (loginForm) {
+    if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       errBox.style.display = 'none';
 
       const user = document.getElementById('inp-staff-user').value.trim();
       const pass = document.getElementById('inp-staff-pass').value.trim();
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
 
-      // Kiểm tra mật khẩu cố định hoặc API
-      if (pass === 'mrivinhphucvpi' || pass === 'admin123') {
-        localStorage.setItem('mri_staff_token', 'token_' + Date.now());
-        localStorage.setItem('mri_staff_user', JSON.stringify({ username: user || 'admin', role: 'admin', fullName: 'Quản trị viên MRI' }));
-        window.location.href = '/admin/';
-        return;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Đang xác thực...';
       }
 
-      // Thử gọi API backend
       try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: user, password: pass })
-        });
-        const data = await res.json();
-        if (data.success && data.token) {
-          localStorage.setItem('mri_staff_token', data.token);
-          localStorage.setItem('mri_staff_user', JSON.stringify(data.user));
+        const authRes = await CloudDB.authenticate(user, pass);
+        if (authRes.success && authRes.user) {
+          localStorage.setItem('mri_staff_token', 'token_' + Date.now());
+          localStorage.setItem('mri_staff_user', JSON.stringify(authRes.user));
+          window.location.href = '/admin/';
+          return;
+        } else {
+          errBox.textContent = authRes.message || 'Mật khẩu không chính xác! Vui lòng thử lại.';
+          errBox.style.display = 'block';
+        }
+      } catch (err) {
+        errBox.textContent = 'Lỗi kết nối xác thực: ' + (err.message || 'Vui lòng thử lại');
+        errBox.style.display = 'block';
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '🚀 ĐĂNG NHẬP HỆ THỐNG KTV';
+        }
+      }
+    });
+  }
           window.location.href = '/admin/';
           return;
         } else {
