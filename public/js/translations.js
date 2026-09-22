@@ -8,7 +8,7 @@ const MRI_TRANSLATIONS = {
     name: 'Tiếng Việt',
     flag: '🇻🇳',
     dir: 'ltr',
-    hospitalName: 'BỆNH VIỆN ĐA KHOA',
+    hospitalName: 'BỆNH VIỆN VĨNH PHÚC VPI',
     department: 'KHOA CHẨN ĐOÁN HÌNH ẢNH • PHÒNG CHỤP MRI',
     subTitle: 'Hệ thống Khảo sát An toàn Chụp Cộng hưởng từ (MRI) Trực tuyến',
     selectLanguage: 'Vui lòng chọn ngôn ngữ của bạn / Please select your language:',
