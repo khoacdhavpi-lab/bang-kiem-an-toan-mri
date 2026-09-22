@@ -462,7 +462,18 @@ function initStaffLoginModal() {
     }
     modal.classList.add('open');
     document.getElementById('inp-staff-pass').focus();
-    if (loginForm) {
+  };
+
+  if (openBtn1) openBtn1.addEventListener('click', openModal);
+  if (openBtn2) openBtn2.addEventListener('click', openModal);
+  if (closeBtn) closeBtn.addEventListener('click', () => modal.classList.remove('open'));
+
+  // Đóng modal khi bấm ra ngoài
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) modal.classList.remove('open');
+  });
+
+  if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       errBox.style.display = 'none';
@@ -495,18 +506,6 @@ function initStaffLoginModal() {
           submitBtn.disabled = false;
           submitBtn.textContent = '🚀 ĐĂNG NHẬP HỆ THỐNG KTV';
         }
-      }
-    });
-  }
-          window.location.href = '/admin/';
-          return;
-        } else {
-          errBox.textContent = data.message || 'Mật khẩu không chính xác! Vui lòng thử lại.';
-          errBox.style.display = 'block';
-        }
-      } catch (err) {
-        errBox.textContent = 'Mật khẩu không đúng (Mặc định: mrivinhphucvpi)';
-        errBox.style.display = 'block';
       }
     });
   }
