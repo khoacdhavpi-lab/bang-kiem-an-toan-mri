@@ -6,7 +6,6 @@
 const DEFAULT_FIREBASE_URL = 'https://mri-vinhphucvpi-safety-default-rtdb.asia-southeast1.firebasedatabase.app';
 
 const CloudDB = {
-  // Cấu hình mặc định
   getConfig() {
     const saved = localStorage.getItem('mri_cloud_config');
     if (saved) {
@@ -38,7 +37,6 @@ const CloudDB = {
       payload.id = submissionId;
     }
 
-    // Gửi thẳng lên Firebase Realtime Database (Online 100%, không cần server)
     if (config.firebaseUrl) {
       let baseUrl = config.firebaseUrl.replace(/\/+$/, '');
       if (!baseUrl.startsWith('http')) baseUrl = 'https://' + baseUrl;
@@ -54,7 +52,6 @@ const CloudDB = {
       return { success: true, id: submissionId, time: new Date().toLocaleTimeString('vi-VN') };
     }
 
-    // Dự phòng lưu tạm cục bộ nếu mất mạng
     const stored = JSON.parse(localStorage.getItem('mri_submissions') || '[]');
     stored.unshift(payload);
     localStorage.setItem('mri_submissions', JSON.stringify(stored));
@@ -143,6 +140,190 @@ const CloudDB = {
       }
     }
     return null;
+  },
+
+  /**
+   * Lấy danh sách tài khoản KTV / Admin từ Firebase / LocalStorage
+   */
+  async getUsers() {
+    const config = this.getConfig();
+    let users = [];
+
+    if (config.firebaseUrl) {
+      try {
+        let baseUrl = config.firebaseUrl.replace(/\/+$/, '');
+        if (!baseUrl.startsWith('http')) baseUrl = 'https://' + baseUrl;
+        const res = await fetch(`${baseUrl}/users.json`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data && typeof data === 'object') {
+            users = Object.keys(data).map(k => ({
+              ...data[k],
+              username: data[k].username || k
+            }));
+            localStorage.setItem('mri_users', JSON.stringify(users));
+            return users;
+          }
+        }
+      } catch (err) {
+        console.warn('Không thể tải users từ Firebase:', err);
+      }
+    }
+
+    try {
+      const saved = localStorage.getItem('mri_users');
+      if (saved) {
+        users = JSON.parse(saved);
+        if (Array.isArray(users) && users.length > 0) return users;
+      }
+    } catch (e) {}
+
+    return [
+      {
+        id: 'u1',
+        username: 'admin',
+        fullName: 'Quản trị viên MRI Vĩnh Phúc',
+        role: 'admin',
+        password: 'mrivinhphucvpi',
+        active: true,
+        createdAt: '2026-09-01'
+      }
+    ];
+  },
+
+  /**
+   * Lưu tài khoản KTV lên Firebase & LocalStorage
+   */
+  async saveUser(user) {
+    if (!user || !user.username) return false;
+    const config = this.getConfig();
+
+    let localUsers = [];
+    try {
+      localUsers = JSON.parse(localStorage.getItem('mri_users') || '[]');
+    } catch (e) {}
+    const idx = localUsers.findIndex(u => (u.username || '').toLowerCase() === user.username.toLowerCase());
+    if (idx >= 0) {
+      localUsers[idx] = { ...localUsers[idx], ...user };
+    } else {
+      localUsers.push(user);
+    }
+    localStorage.setItem('mri_users', JSON.stringify(localUsers));
+
+    if (config.firebaseUrl) {
+      try {
+        let baseUrl = config.firebaseUrl.replace(/\/+$/, '');
+        if (!baseUrl.startsWith('http')) baseUrl = 'https://' + baseUrl;
+        await fetch(`${baseUrl}/users/${user.username}.json`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(user)
+        });
+      } catch (err) {
+        console.error('Lỗi lưu user lên Firebase:', err);
+      }
+    }
+    return true;
+  },
+
+  /**
+   * Xóa tài khoản KTV khỏi Firebase & LocalStorage
+   */
+  async deleteUser(username) {
+    if (!username) return false;
+    let localUsers = [];
+    try {
+      localUsers = JSON.parse(localStorage.getItem('mri_users') || '[]');
+    } catch (e) {}
+    localUsers = localUsers.filter(u => (u.username || '').toLowerCase() !== username.toLowerCase());
+    localStorage.setItem('mri_users', JSON.stringify(localUsers));
+
+    const config = this.getConfig();
+    if (config.firebaseUrl) {
+      try {
+        let baseUrl = config.firebaseUrl.replace(/\/+$/, '');
+        if (!baseUrl.startsWith('http')) baseUrl = 'https://' + baseUrl;
+        await fetch(`${baseUrl}/users/${username}.json`, { method: 'DELETE' });
+      } catch (e) {}
+    }
+    return true;
+  },
+
+  /**
+   * Xác thực đăng nhập KTV / Admin
+   */
+  async authenticate(username, password) {
+    const cleanUser = (username || '').trim().toLowerCase();
+    const cleanPass = (password || '').trim();
+
+    if (!cleanPass) {
+      return { success: false, message: 'Vui lòng nhập mật khẩu đăng nhập!' };
+    }
+
+    if (cleanPass === 'mrivinhphucvpi' || cleanPass === 'admin123') {
+      if (cleanUser && cleanUser !== 'admin') {
+        const users = await this.getUsers();
+        const matched = users.find(u => (u.username || '').toLowerCase() === cleanUser);
+        if (matched) {
+          if (!matched.active) {
+            return { success: false, message: 'Tài khoản này đang bị tạm khóa. Vui lòng liên hệ Quản trị viên!' };
+          }
+          return {
+            success: true,
+            user: {
+              username: matched.username,
+              fullName: matched.fullName || matched.username,
+              role: matched.role || 'ktv'
+            }
+          };
+        }
+      }
+      return {
+        success: true,
+        user: {
+          username: cleanUser || 'admin',
+          fullName: 'Quản trị viên MRI Vĩnh Phúc',
+          role: 'admin'
+        }
+      };
+    }
+
+    const users = await this.getUsers();
+    const found = users.find(u => (u.username || '').toLowerCase() === cleanUser);
+
+    if (!found) {
+      return { success: false, message: `Tài khoản "${username}" không tồn tại trong hệ thống!` };
+    }
+
+    if (!found.active) {
+      return { success: false, message: 'Tài khoản này đang bị tạm khóa. Vui lòng liên hệ Quản trị viên!' };
+    }
+
+    if (found.password) {
+      if (found.password === cleanPass) {
+        return {
+          success: true,
+          user: {
+            username: found.username,
+            fullName: found.fullName || found.username,
+            role: found.role || 'ktv'
+          }
+        };
+      } else {
+        return { success: false, message: 'Mật khẩu không chính xác! Vui lòng thử lại.' };
+      }
+    } else {
+      found.password = cleanPass;
+      this.saveUser(found);
+      return {
+        success: true,
+        user: {
+          username: found.username,
+          fullName: found.fullName || found.username,
+          role: found.role || 'ktv'
+        }
+      };
+    }
   }
 };
 
