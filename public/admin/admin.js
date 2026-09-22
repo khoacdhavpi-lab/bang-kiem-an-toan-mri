@@ -727,7 +727,6 @@ window.deleteUser = async function(username) {
   userAccounts = await CloudDB.getUsers();
   renderUserList();
 };
-};
 
 /**
  * ========================================================
