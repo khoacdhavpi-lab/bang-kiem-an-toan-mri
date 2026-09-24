@@ -297,7 +297,27 @@
             <label class="form-label">Bác sĩ / KTV Phụ trách phòng MRI</label>
             <input type="text" id="set-lead-doctor" class="form-input" placeholder="Ví dụ: BS.CKI Nguyễn Văn B / KTV Trưởng" />
           </div>
+          <!-- Cấu hình danh mục Khoa / Phòng gửi chụp -->
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label class="form-label">
+              📋 Danh mục Khoa / Phòng khám có sẵn (Mỗi khoa 1 dòng)
+            </label>
+            <textarea id="set-dept-list" class="form-input" rows="6" placeholder="Khoa Khám bệnh&#10;Khoa Cấp cứu&#10;Khoa Ngoại Thần kinh..."></textarea>
+            <p style="font-size: 11.5px; color: #94a3b8; margin-top: 4px;">
+              Các khoa/phòng này sẽ tự động xuất hiện thành nút chọn nhanh để bệnh nhân bấm chọn trên điện thoại.
+            </p>
+          </div>
 
+          <!-- Cấu hình danh mục Chỉ định chụp (Vùng chụp) -->
+          <div class="form-group" style="margin-bottom: 20px;">
+            <label class="form-label">
+              🎯 Danh mục Chỉ định chụp (Vùng chụp MRI) có sẵn (Mỗi vùng 1 dòng)
+            </label>
+            <textarea id="set-scan-list" class="form-input" rows="7" placeholder="MRI Sọ não&#10;MRI Cột sống thắt lưng&#10;MRI Khớp gối..."></textarea>
+            <p style="font-size: 11.5px; color: #94a3b8; margin-top: 4px;">
+              Bệnh nhân sẽ thấy các thẻ bấm tích chọn nhanh các vùng chụp này khi điền bảng kiểm trên điện thoại.
+            </p>
+          </div>
           <button type="submit" class="admin-btn primary" style="padding: 10px 20px;">
             💾 Lưu cấu hình đơn vị
           </button>
