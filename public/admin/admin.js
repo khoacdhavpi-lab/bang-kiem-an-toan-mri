@@ -232,6 +232,8 @@ function renderPatientTable() {
     return;
   }
 
+  const isAdmin = currentUser && currentUser.role === 'admin';
+
   tbody.innerHTML = list.map(sub => {
     const timeStr = formatDateTime(sub.submittedAt);
     const isRisk = sub.hasHighRisk;
@@ -271,6 +273,11 @@ function renderPatientTable() {
             <button type="button" class="admin-btn primary sm" onclick="printChecklistA4('${sub.id}')" title="In phiếu khổ A4">
               🖨️ In A4
             </button>
+            ${isAdmin ? `
+            <button type="button" class="admin-btn danger sm" onclick="deleteChecklist('${sub.id}')" title="Xóa phiếu này (Chỉ Quản trị viên)">
+              🗑️ Xóa
+            </button>
+            ` : ''}
           </div>
         </td>
       </tr>
@@ -390,6 +397,17 @@ window.openDetailModal = function(id) {
   // Nút in từ modal
   document.getElementById('btn-print-from-detail').onclick = () => printChecklistA4(sub.id);
 
+  // Nút xóa phiếu từ modal (Dành riêng cho Quản trị viên Admin)
+  const btnDeleteModal = document.getElementById('btn-delete-from-detail');
+  if (btnDeleteModal) {
+    if (currentUser && currentUser.role === 'admin') {
+      btnDeleteModal.style.display = 'inline-flex';
+      btnDeleteModal.onclick = () => deleteChecklist(sub.id);
+    } else {
+      btnDeleteModal.style.display = 'none';
+    }
+  }
+
   modal.classList.add('open');
 };
 
@@ -424,6 +442,45 @@ async function saveKtvEvaluation() {
   document.getElementById('modal-patient-detail').classList.remove('open');
   alert('Đã lưu đánh giá và phê duyệt an toàn của KTV thành công!');
 }
+
+/**
+ * Xóa vĩnh viễn phiếu khảo sát (Chỉ dành riêng cho Quản trị viên Admin)
+ */
+window.deleteChecklist = async function(id) {
+  if (!currentUser || currentUser.role !== 'admin') {
+    alert('Chỉ tài khoản Quản trị viên (Admin) mới có quyền xóa phiếu khảo sát!');
+    return;
+  }
+
+  const sub = allSubmissions.find(s => s.id === id);
+  const patientName = sub ? sub.fullName : id;
+
+  const confirmed = confirm(`⚠️ CẢNH BÁO XÓA PHIẾU AN TOÀN:\n\nBạn có chắc chắn muốn xóa vĩnh viễn phiếu "${id}" của bệnh nhân "${patientName}" không?\n\nSau khi xóa, dữ liệu sẽ bị xóa hoàn toàn khỏi cơ sở dữ liệu và không thể khôi phục!`);
+  if (!confirmed) return;
+
+  try {
+    await CloudDB.deleteChecklist(id);
+
+    // Cập nhật bộ nhớ cục bộ
+    allSubmissions = allSubmissions.filter(s => s.id !== id);
+    knownSubmissionIds.delete(id);
+
+    // Đóng modal chi tiết nếu đang mở phiếu này
+    const modal = document.getElementById('modal-patient-detail');
+    if (modal && modal.classList.contains('open') && currentViewingId === id) {
+      modal.classList.remove('open');
+      currentViewingId = null;
+    }
+
+    // Cập nhật giao diện và số liệu thống kê
+    updateStats();
+    renderPatientTable();
+    alert(`Đã xóa vĩnh viễn phiếu "${id}" của bệnh nhân "${patientName}" thành công!`);
+  } catch (err) {
+    console.error('Lỗi khi xóa phiếu:', err);
+    alert('Có lỗi xảy ra trong quá trình xóa phiếu. Vui lòng kiểm tra lại kết nối!');
+  }
+};
 
 /**
  * ========================================================

@@ -154,6 +154,40 @@ const CloudDB = {
   },
 
   /**
+   * Xóa phiếu khảo sát (Dành riêng cho Quản trị viên Admin)
+   */
+  async deleteChecklist(id) {
+    if (!id) return false;
+
+    // 1. Xóa trong LocalStorage dự phòng
+    try {
+      let stored = JSON.parse(localStorage.getItem('mri_submissions') || '[]');
+      stored = stored.filter(s => s.id !== id);
+      localStorage.setItem('mri_submissions', JSON.stringify(stored));
+    } catch (e) {}
+
+    // 2. Xóa trực tiếp trên Firebase Realtime Database
+    const config = this.getConfig();
+    if (config.firebaseUrl) {
+      try {
+        let baseUrl = config.firebaseUrl.replace(/\/+$/, '');
+        if (!baseUrl.startsWith('http')) baseUrl = 'https://' + baseUrl;
+        const targetUrl = `${baseUrl}/checklists/${id}.json`;
+        await fetch(targetUrl, { method: 'DELETE' });
+      } catch (err) {
+        console.error('Lỗi khi xóa phiếu trên Firebase:', err);
+      }
+    }
+
+    // 3. Fallback xóa qua API Serverless nếu có
+    try {
+      await fetch(`/api/checklists/${id}`, { method: 'DELETE' });
+    } catch (e) {}
+
+    return true;
+  },
+
+  /**
    * Đăng ký nhận thông báo thời gian thực khi có bệnh nhân nộp phiếu
    */
   subscribeRealtime(onNewChecklist) {

@@ -137,7 +137,7 @@
               <th>Chỉ định / Vùng chụp</th>
               <th>Đánh giá an toàn</th>
               <th>Trạng thái KTV</th>
-              <th style="text-align: right; width: 170px;">Thao tác</th>
+              <th style="text-align: right; width: 230px;">Thao tác</th>
             </tr>
           </thead>
           <tbody id="patient-table-body">
@@ -379,6 +379,9 @@
         <div style="display: flex; gap: 8px;">
           <button type="button" class="admin-btn primary" id="btn-print-from-detail">
             🖨️ In phiếu A4 ngay
+          </button>
+          <button type="button" class="admin-btn danger" id="btn-delete-from-detail" style="display: none;" title="Xóa phiếu này (Chỉ Quản trị viên)">
+            🗑️ Xóa phiếu
           </button>
           <button type="button" class="close-modal-btn" id="btn-close-detail">&times;</button>
         </div>
