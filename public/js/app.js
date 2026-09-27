@@ -480,32 +480,35 @@ function initStaffLoginModal() {
 
       const user = document.getElementById('inp-staff-user').value.trim();
       const pass = document.getElementById('inp-staff-pass').value.trim();
-      const submitBtn = loginForm.querySelector('button[type="submit"]');
 
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = '⏳ Đang xác thực...';
+      // Kiểm tra mật khẩu cố định hoặc API
+      if (pass === 'mrivinhphucvpi' || pass === 'admin123') {
+        localStorage.setItem('mri_staff_token', 'token_' + Date.now());
+        localStorage.setItem('mri_staff_user', JSON.stringify({ username: user || 'admin', role: 'admin', fullName: 'Quản trị viên MRI' }));
+        window.location.href = '/admin/';
+        return;
       }
 
+      // Thử gọi API backend
       try {
-        const authRes = await CloudDB.authenticate(user, pass);
-        if (authRes.success && authRes.user) {
-          localStorage.setItem('mri_staff_token', 'token_' + Date.now());
-          localStorage.setItem('mri_staff_user', JSON.stringify(authRes.user));
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: user, password: pass })
+        });
+        const data = await res.json();
+        if (data.success && data.token) {
+          localStorage.setItem('mri_staff_token', data.token);
+          localStorage.setItem('mri_staff_user', JSON.stringify(data.user));
           window.location.href = '/admin/';
           return;
         } else {
-          errBox.textContent = authRes.message || 'Mật khẩu không chính xác! Vui lòng thử lại.';
+          errBox.textContent = data.message || 'Mật khẩu không chính xác! Vui lòng thử lại.';
           errBox.style.display = 'block';
         }
       } catch (err) {
-        errBox.textContent = 'Lỗi kết nối xác thực: ' + (err.message || 'Vui lòng thử lại');
+        errBox.textContent = 'Mật khẩu không đúng (Mặc định: mrivinhphucvpi)';
         errBox.style.display = 'block';
-      } finally {
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = '🚀 ĐĂNG NHẬP HỆ THỐNG KTV';
-        }
       }
     });
   }
