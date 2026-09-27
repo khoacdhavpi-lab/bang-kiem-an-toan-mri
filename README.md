@@ -21,7 +21,7 @@ Dự án số hóa quy trình khảo sát an toàn trước khi chụp MRI dành
   - 🇸🇦 العربية (Hỗ trợ đọc từ phải sang trái RTL)
   - 🇱🇦 ພາສາລາວ
   - 🇰🇭 ភាសាខ្មែរ
-- **Hướng dẫn an toàn chụp:** Giải thích thời gian chụp 10-25 phút, tiếng ồn máy đập gõ bình thường, giữ yên tư thế, tháo bỏ kim loại/điện thoại/thẻ từ...
+- **Hướng dẫn an toàn chụp:** Giải thích thời gian chụp 3-25 phút, tiếng ồn máy đập gõ bình thường, giữ yên tư thế, tháo bỏ kim loại/điện thoại/thẻ từ...
 - **Biểu mẫu thông tin hành chính:** Họ tên, tuổi/năm sinh, giới tính, số điện thoại, khoa phòng, cân nặng, đối tượng (nội/ngoại trú), vùng chụp.
 - **Bộ 15 câu hỏi an toàn chuẩn y tế:** Nút bấm Có/Không lớn, dễ nhìn trên điện thoại; tự động kích hoạt câu hỏi đặc thù cho bệnh nhân nữ (mang thai, cho con bú).
 - **Ký tên cảm ứng trực tiếp:** Vẽ chữ ký mượt mà trên màn hình điện thoại, hỗ trợ xóa và ký lại dễ dàng.
