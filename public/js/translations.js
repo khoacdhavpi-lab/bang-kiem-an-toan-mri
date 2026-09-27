@@ -17,7 +17,7 @@ const MRI_TRANSLATIONS = {
     introText: 'Chụp cộng hưởng từ (MRI) là kỹ thuật chẩn đoán hình ảnh hiện đại, an toàn, không sử dụng tia X, giúp bác sĩ quan sát rõ nét các cơ quan bên trong cơ thể để phát hiện và đánh giá chính xác bệnh lý. Để quá trình thăm khám an toàn tuyệt đối và đạt chất lượng hình ảnh tốt nhất, quý vị vui lòng lưu ý:',
     section1Title: '1. Quá trình thực hiện chụp',
     section1Points: [
-      'Thời gian chụp thường kéo dài từ 10 đến 25 phút tùy thuộc vào bộ phận và mục đích thăm khám.',
+      'Thời gian chụp thường kéo dài từ 3 đến 25 phút tùy thuộc vào bộ phận và mục đích thăm khám.',
       'Máy MRI khi vận hành sẽ phát ra tiếng đập gõ lặp lại khá lớn, đây là hiện tượng kỹ thuật hoàn toàn bình thường. Bạn sẽ được trang bị tai nghe hoặc nút bịt tai chống ồn.',
       'Giữ nguyên vị trí và nằm yên tuyệt đối trong suốt thời gian chụp; cử động dù rất nhỏ cũng có thể làm mờ ảnh và kéo dài thời gian kiểm tra.',
       'Luôn lắng nghe và tuân thủ các hiệu lệnh từ kỹ thuật viên qua hệ thống liên lạc (như hít vào, nín thở hoặc thở đều).'
@@ -99,7 +99,7 @@ const MRI_TRANSLATIONS = {
     introText: 'Magnetic Resonance Imaging (MRI) is a safe, non-invasive imaging technique that does not use X-rays. It uses a strong magnetic field and radio waves to create detailed images of organs and tissues inside your body. To ensure your absolute safety and obtain optimal image quality, please note:',
     section1Title: '1. The Scanning Procedure',
     section1Points: [
-      'The scan duration typically lasts between 10 and 25 minutes depending on the examination area.',
+      'The scan duration typically lasts between 3 and 25 minutes depending on the examination area.',
       'The MRI scanner produces loud rhythmic knocking and humming noises during operation. This is completely normal. Earplugs or headphones will be provided.',
       'Remain completely still throughout the scan; any minor movement can blur the images and prolong the examination.',
       'Listen carefully and follow all instructions from the technologist via the intercom (e.g., breathing instructions).'
@@ -181,7 +181,7 @@ const MRI_TRANSLATIONS = {
     introText: "L'imagerie par résonance magnétique (IRM) est une technique diagnostique sûre, sans rayons X. Pour votre sécurité et pour garantir la meilleure qualité d'image, veuillez noter :",
     section1Title: "1. Déroulement de l'examen",
     section1Points: [
-      "La durée dure généralement de 10 à 25 minutes selon la région examinée.",
+      "La durée dure généralement de 3 à 25 minutes selon la région examinée.",
       "L'appareil produit des bruits de cognement réguliers. Des bouchons d'oreilles ou un casque vous seront fournis.",
       "Restez parfaitement immobile pendant tout l'examen.",
       "Suivez attentivement les consignes du manipulateur radio par l'interphone."
@@ -264,7 +264,7 @@ const MRI_TRANSLATIONS = {
     introText: '磁共振成像 (MRI) 是一种先进、无电离辐射的检查技术。为确保您的人身安全并获得最佳图像质量，请注意以下事项：',
     section1Title: '1. 检查过程须知',
     section1Points: [
-      '检查通常持续 10 至 25 分钟，具体取决于检查部位和项目。',
+      '检查通常持续 3 至 25 分钟，具体取决于检查部位和项目。',
       '机器运转时会发出较大的敲击和嗡鸣声，这属于正常物理现象，我们将为您提供防噪耳塞或耳机。',
       '请在检查全程保持绝对静止，轻微移动都会导致图像模糊并延长检查时间。',
       '请通过对讲系统严格听从放射技师的呼吸等指令。'
@@ -346,7 +346,7 @@ const MRI_TRANSLATIONS = {
     introText: 'MRI는 방사선을 사용하지 않는 안전한 정밀 검사입니다. 안전한 검사와 선명한 영상 획득을 위해 아래 주의사항을 숙지해 주십시오:',
     section1Title: '1. 검사 진행 과정',
     section1Points: [
-      '검사 시간은 부위에 따라 보통 10~25분 정도 소요됩니다.',
+      '검사 시간은 부위에 따라 보통 3~25분 정도 소요됩니다.',
       '검사 중 큰 기계음(두드리는 소리)이 발생하며 이는 정상입니다. 소음 방지용 귀마개가 제공됩니다.',
       '검사 중에는 절대로 움직이지 마십시오. 작은 움직임도 영상에 영향을 줍니다.',
       '인터폰을 통한 의료진의 안내(호흡 조절 등)에 잘 따라 주십시오.'
@@ -428,7 +428,7 @@ const MRI_TRANSLATIONS = {
     introText: 'MRI検査は放射線被ばくのない安全な検査です。安全かつ正確な検査を行うため、以下の注意事項をご確認ください。',
     section1Title: '1. 検査の流れと注意事項',
     section1Points: [
-      '検査時間は部位により10〜25分程度です。',
+      '検査時間は部位により3〜25分程度です。',
       '検査中はカンカンという大きな音がしますが正常です。耳栓やヘッドホンをご用意します。',
       '検査中は体を動かさず、静止した状態を保ってください。',
       '技師のマイクからの指示（息止めなど）に従ってください。'
@@ -510,7 +510,7 @@ const MRI_TRANSLATIONS = {
     introText: 'Магнитно-резонансная томография (МРТ) — безопасный и безболезненный метод диагностики без использования рентгеновских лучей. Пожалуйста, ознакомьтесь с правилами:',
     section1Title: '1. Процедура сканирования',
     section1Points: [
-      'Продолжительность исследования составляет от 10 до 25 минут.',
+      'Продолжительность исследования составляет от 3 до 25 минут.',
       'Во время работы томограф издает громкий стук, это штатный режим работы. Вам предоставят беруши или наушники.',
       'Необходимо сохранять полную неподвижность во время сканирования.',
       'Следуйте указаниям оператора по двусторонней связи.'
@@ -592,7 +592,7 @@ const MRI_TRANSLATIONS = {
     introText: 'Die Magnetresonanztomographie (MRT) ist ein sicheres bildgebendes Verfahren ohne Röntgenstrahlung. Bitte beachten Sie folgende Hinweise für Ihre Sicherheit:',
     section1Title: '1. Ablauf der Untersuchung',
     section1Points: [
-      'Die Untersuchung dauert in der Regel zwischen 10 und 25 Minuten.',
+      'Die Untersuchung dauert in der Regel zwischen 3 und 25 Minuten.',
       'Während der Messung entstehen laute Klopfgeräusche. Sie erhalten Gehörschutz oder Kopfhörer.',
       'Liegen Sie während der gesamten Untersuchung vollkommen ruhig.',
       'Folgen Sie den Atemanweisungen des Personals über die Sprechanlage.'
@@ -674,7 +674,7 @@ const MRI_TRANSLATIONS = {
     introText: 'การตรวจ MRI เป็นการตรวจวินิจฉัยที่ปลอดภัย ไม่ใช้รังสีเอกซ์ โปรดอ่านคำแนะนำเพื่อความปลอดภัยสูงสุดและคุณภาพของภาพที่ดีที่สุด:',
     section1Title: '1. ขั้นตอนการตรวจ',
     section1Points: [
-      'ระยะเวลาในการตรวจประมาณ 10 ถึง 25 นาที ขึ้นอยู่กับอวัยวะที่ตรวจ',
+      'ระยะเวลาในการตรวจประมาณ 3 ถึง 25 นาที ขึ้นอยู่กับอวัยวะที่ตรวจ',
       'เครื่องจะส่งเสียงดังเป็นจังหวะซึ่งเป็นปกติ เรามีที่อุดหูหรือหูฟังลดเสียงให้',
       'ต้องนอนนิ่งที่สุดตลอดการตรวจ การขยับเพียงเล็กน้อยอาจทำให้ภาพเบลอ',
       'ปฏิบัติตามคำสั่งของเจ้าหน้าที่ผ่านระบบติดต่อสื่อสาร (เช่น การหายใจ)'
@@ -756,7 +756,7 @@ const MRI_TRANSLATIONS = {
     introText: 'एमआरआई एक सुरक्षित जांच है जिसमें एक्स-रे विकिरण का उपयोग नहीं होता है। सुरक्षित और सटीक जांच के लिए कृपया निम्नलिखित बातों का ध्यान रखें:',
     section1Title: '1. जांच प्रक्रिया',
     section1Points: [
-      'जांच में सामान्यतः 10 से 25 मिनट का समय लगता है।',
+      'जांच में सामान्यतः 3 से 25 मिनट का समय लगता है।',
       'मशीन से खटखटाने की तेज आवाजें आती हैं जो पूरी तरह सामान्य हैं। आपको ईयरप्लग दिए जाएंगे।',
       'जांच के दौरान बिल्कुल शांत और स्थिर रहें; हिलने से रिपोर्ट खराब हो सकती है।',
       'माइक्रोफ़ोन द्वारा तकनीशियन के निर्देशों का पालन करें।'
@@ -839,7 +839,7 @@ const MRI_TRANSLATIONS = {
     introText: 'ການກວດ MRI ແມ່ນວິທີການກວດວິເຄາະທີ່ປອດໄພ ບໍ່ໃຊ້ລັງສີ X. ເພື່ອຄວາມປອດໄພສູງສຸດ ກະລຸນາຮັບຊາບຂໍ້ຄວນລະວັງດັ່ງນີ້:',
     section1Title: '1. ຂັ້ນຕອນການກວດ',
     section1Points: [
-      'ເວລາໃນການກວດປະມານ 10 ຫາ 25 ນາທີ ຂຶ້ນກັບອະໄວຍະວະທີ່ກວດ.',
+      'ເວລາໃນການກວດປະມານ 3 ຫາ 25 ນາທີ ຂຶ້ນກັບອະໄວຍະວະທີ່ກວດ.',
       'ເຄື່ອງຈະສົ່ງສຽງດັງເປັນຈັງຫວະເຊິ່ງເປັນເລື່ອງປົກກະຕິ ຈະມີອຸປະກອນອຸດຫູໃຫ້.',
       'ໃຫ້ນອນມິດງຽບ ຫ້າມເໜັງຕີງຕະຫຼອດເວລາການກວດ.',
       'ປະຕິບັດຕາມຄຳສັ່ງຂອງນາຍຊ່າງຜ່ານລະບົບສື່ສານ (ເຊັ່ນ: ການຫາຍໃຈ).'
@@ -921,7 +921,7 @@ const MRI_TRANSLATIONS = {
     introText: 'ការថត MRI គឺជាបច្ចេកវិទ្យាវិនិច្ឆ័យរូបភាពវេជ្ជសាស្ត្រប្រកបដោយសុវត្ថិភាព មិនប្រើកាំរស្មីអ៊ិច។ ដើម្បីសុវត្ថិភាពខ្ពស់បំផុត សូមកត់សម្គាល់៖',
     section1Title: '១. ដំណើរការនៃការថត',
     section1Points: [
-      'រយៈពេលនៃការថតជាទូទៅមានចន្លោះពី ១០ ទៅ ២៥ នាទី។',
+      'រយៈពេលនៃការថតជាទូទៅមានចន្លោះពី ៣ ទៅ ២៥ នាទី។',
       'ម៉ាស៊ីននឹងបញ្ចេញសំឡេងគោះខ្លាំងៗជាចង្វាក់ ដែលជារឿងធម្មតា។ យើងខ្ញុំមានឧបករណ៍ការពារត្រចៀកជូន។',
       'សូមគេងឱ្យស្ងៀមបំផុត មិនត្រូវកម្រើកខ្លួនឡើយកំឡុងពេលថត។',
       'សូមស្តាប់និងធ្វើតាមការណែនាំរបស់អ្នកបច្ចេកទេសតាមប្រព័ន្ធទាក់ទង (ដូចជាការដកដង្ហើម)។'
