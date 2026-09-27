@@ -6,6 +6,7 @@ let currentLang = 'vi';
 let selectedGender = 'male';
 let selectedPatientType = 'outpatient';
 let questionAnswers = {};
+let questionDetails = {};
 let sigPad = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -159,41 +160,71 @@ function renderQuestions(t) {
     item.id = `q-item-${q.id}`;
 
     const isCurrentYes = questionAnswers[q.id] === true;
+    const currentDetailVal = questionDetails[q.id] || '';
 
     item.innerHTML = `
-      <div class="question-text-block">
-        <p class="question-title">
-          <span class="question-number">${q.id}.</span> ${q.text}
-        </p>
-        ${q.critical ? `<span class="critical-badge">${t.criticalBadge || '⚠️ Khảo sát kỹ thuật an toàn bắt buộc'}</span>` : ''}
+      <div class="question-main-row">
+        <div class="question-text-block">
+          <p class="question-title">
+            <span class="question-number">${q.id}.</span> ${q.text}
+          </p>
+          ${q.critical ? `<span class="critical-badge">${t.criticalBadge || '⚠️ Khảo sát kỹ thuật an toàn bắt buộc'}</span>` : ''}
+        </div>
+        <div class="choice-actions">
+          <button type="button" class="choice-btn no-btn ${!isCurrentYes ? 'selected' : ''}" data-qid="${q.id}" data-val="no">
+            <span>✓</span> <span>${t.no}</span>
+          </button>
+          <button type="button" class="choice-btn yes-btn ${isCurrentYes ? 'selected' : ''}" data-qid="${q.id}" data-val="yes">
+            <span>⚠️</span> <span>${t.yes}</span>
+          </button>
+        </div>
       </div>
-      <div class="choice-actions">
-        <button type="button" class="choice-btn no-btn ${!isCurrentYes ? 'selected' : ''}" data-qid="${q.id}" data-val="no">
-          <span>✓</span> <span>${t.no}</span>
-        </button>
-        <button type="button" class="choice-btn yes-btn ${isCurrentYes ? 'selected' : ''}" data-qid="${q.id}" data-val="yes">
-          <span>⚠️</span> <span>${t.yes}</span>
-        </button>
+      <div class="question-detail-box" id="q-detail-${q.id}" style="${isCurrentYes ? 'display: block;' : 'display: none;'}">
+        <label class="question-detail-label" for="inp-q-detail-${q.id}">
+          ✍️ <span>${t.specifyDetailLabel || 'Ghi rõ chi tiết (loại thiết bị/kim loại, vị trí, năm phẫu thuật...):'}</span>
+        </label>
+        <input type="text" 
+               class="question-detail-input" 
+               id="inp-q-detail-${q.id}" 
+               placeholder="${t.specifyDetailPlaceholder || 'Ví dụ: Đặt stent mạch vành năm 2021, hoặc mạt sắt mắt trái...'}" 
+               value="${currentDetailVal.replace(/"/g, '&quot;')}" />
       </div>
     `;
 
     // Gắn sự kiện chọn Có / Không
     const noBtn = item.querySelector('.no-btn');
     const yesBtn = item.querySelector('.yes-btn');
+    const detailBox = item.querySelector(`#q-detail-${q.id}`);
+    const detailInp = item.querySelector(`#inp-q-detail-${q.id}`);
 
     noBtn.addEventListener('click', () => {
       questionAnswers[q.id] = false;
       noBtn.classList.add('selected');
       yesBtn.classList.remove('selected');
+      if (detailBox) detailBox.style.display = 'none';
+      if (detailInp) {
+        detailInp.value = '';
+        delete questionDetails[q.id];
+      }
     });
 
     yesBtn.addEventListener('click', () => {
       questionAnswers[q.id] = true;
       yesBtn.classList.add('selected');
       noBtn.classList.remove('selected');
+      if (detailBox) {
+        detailBox.style.display = 'block';
+        if (detailInp) detailInp.focus();
+      }
     });
 
-    // Nếu là câu hỏi dành riêng cho phụ nữ (câu 14, 15), bỏ vào khung hồng riêng
+    if (detailInp) {
+      detailInp.addEventListener('input', () => {
+        questionDetails[q.id] = detailInp.value.trim();
+      });
+    }
+
+    // Nếu là câu hỏi dành riêng cho phụ nữ, bỏ vào khung hồng riêng
     if (q.femaleOnly) {
       if (!femaleCard) {
         femaleCard = document.createElement('div');
@@ -358,13 +389,14 @@ function initFormSubmission() {
       patientType: selectedPatientType,
       scanArea: document.getElementById('inp-scanArea').value.trim(),
       answers: questionAnswers,
+      answerDetails: questionDetails,
       signature: signatureDataUrl,
       submittedAt: new Date().toISOString()
     };
 
     // Kiểm tra mức độ rủi ro (Risk Evaluation)
-    // Các câu hỏi rủi ro cao: 1, 2, 3, 4, 5, 6, 8, 11, 14
-    const criticalQuestions = [1, 2, 3, 4, 5, 6, 8, 11, 14];
+    // Các câu hỏi rủi ro cao: 1, 2, 3, 6, 8
+    const criticalQuestions = [1, 2, 3, 6, 8];
     let hasHighRisk = false;
     criticalQuestions.forEach(id => {
       if (questionAnswers[id] === true) hasHighRisk = true;
@@ -398,6 +430,7 @@ function initFormSubmission() {
       form.reset();
       sigPad.clear();
       resetPresetSelections();
+      questionDetails = {};
       // Đặt lại câu trả lời về Không
       Object.keys(questionAnswers).forEach(k => { questionAnswers[k] = false; });
       applyLanguage(currentLang);

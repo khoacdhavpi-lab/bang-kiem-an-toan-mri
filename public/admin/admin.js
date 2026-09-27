@@ -336,23 +336,37 @@ window.openDetailModal = function(id) {
     riskBanner.innerHTML = `✅ <strong>AN TOÀN CƠ BẢN:</strong> Không phát hiện chống chỉ định từ trường trong bảng kiểm.`;
   }
 
-  // Render 15 câu hỏi (lấy theo tiếng Việt cho KTV dễ đọc)
+  // Render danh sách câu hỏi (lấy theo tiếng Việt cho KTV dễ đọc)
   const qContainer = document.getElementById('dt-questions-list');
   const viQuestions = MRI_TRANSLATIONS['vi'].questions;
   const answers = sub.answers || {};
+  const answerDetails = sub.answerDetails || {};
+
+  function esc(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
 
   qContainer.innerHTML = viQuestions.map(q => {
     const ansYes = answers[q.id] === true;
     const isDanger = ansYes && q.critical;
+    const detail = answerDetails[q.id] || '';
     return `
-      <div class="dt-q-row ${isDanger ? 'danger' : ''}">
-        <div>
-          <span><strong>${q.id}.</strong> ${q.text}</span>
-          ${q.critical ? `<span style="font-size:11px; opacity:0.8; margin-left:6px;">[Khảo sát bắt buộc]</span>` : ''}
+      <div class="dt-q-row ${isDanger ? 'danger' : ''}" style="flex-direction: column; align-items: stretch; gap: 4px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+          <div>
+            <span><strong>${q.id}.</strong> ${q.text}</span>
+            ${q.critical ? `<span style="font-size:11px; opacity:0.8; margin-left:6px;">[Khảo sát bắt buộc]</span>` : ''}
+          </div>
+          <div style="font-weight: 800; font-size: 13.5px; white-space: nowrap;">
+            ${ansYes ? '<span style="color:#dc2626;">⚠️ CÓ</span>' : '<span style="color:#059669;">✓ KHÔNG</span>'}
+          </div>
         </div>
-        <div style="font-weight: 800; font-size: 13.5px; padding-left: 12px;">
-          ${ansYes ? '<span style="color:#dc2626;">⚠️ CÓ</span>' : '<span style="color:#059669;">✓ KHÔNG</span>'}
-        </div>
+        ${ansYes && detail ? `
+          <div style="margin-top: 4px; padding: 5px 10px; background: #fff1f2; border: 1px solid #fecdd3; border-radius: 6px; font-size: 12.5px; color: #9f1239;">
+            <strong>✍️ Chi tiết bệnh nhân ghi:</strong> ${esc(detail)}
+          </div>
+        ` : ''}
       </div>
     `;
   }).join('');
@@ -428,14 +442,24 @@ window.printChecklistA4 = function(id) {
 
   const viQuestions = MRI_TRANSLATIONS['vi'].questions;
   const answers = sub.answers || {};
+  const answerDetails = sub.answerDetails || {};
+
+  function escPrint(s) {
+    if (!s) return '';
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
 
   let rowsHtml = '';
   viQuestions.forEach(q => {
     const isYes = answers[q.id] === true;
+    const detail = answerDetails[q.id] || '';
     rowsHtml += `
       <tr>
         <td class="print-center" style="width: 28px;">${q.id}</td>
-        <td>${q.text}</td>
+        <td>
+          <div style="font-weight: ${q.critical ? '600' : 'normal'};">${q.text}</div>
+          ${isYes && detail ? `<div style="font-size: 8pt; font-style: italic; color: #b91c1c; margin-top: 2px;">↳ Chi tiết: <strong>${escPrint(detail)}</strong></div>` : ''}
+        </td>
         <td class="print-center" style="width: 44px;">
           <span class="print-checkbox ${!isYes ? 'checked' : ''}">${!isYes ? 'X' : ''}</span>
         </td>
