@@ -56,8 +56,7 @@ const MRI_TRANSLATIONS = {
     no: 'Không',
     criticalBadge: '⚠️ Khảo sát an toàn bắt buộc',
     femaleSectionTitle: '🌸 Phần dành riêng cho bệnh nhân nữ',
-    specifyDetailLabel: 'Ghi rõ chi tiết (loại thiết bị/kim loại, vị trí, năm phẫu thuật...):',
-    specifyDetailPlaceholder: 'Ví dụ: Đặt stent mạch vành năm 2021, hoặc mạt sắt mắt trái...',
+    specifyDetailLabel: 'Ghi rõ nội dung chi tiết:',
     questions: [
       { id: 1, text: 'Bạn có mang máy tạo nhịp tim, van tim nhân tạo, máy ốc tai điện tử, máy kích thích thần kinh hoặc bơm tiêm tự động (insulin) không?', critical: true },
       { id: 2, text: 'Bạn có từng phẫu thuật đặt kẹp mạch máu não (clip), stent mạch vành, nẹp vít xương hoặc cấy ghép kim loại trong cơ thể không?', critical: true },
@@ -139,8 +138,7 @@ const MRI_TRANSLATIONS = {
     no: 'No',
     criticalBadge: '⚠️ Mandatory Safety Screening',
     femaleSectionTitle: '🌸 Section for Female Patients',
-    specifyDetailLabel: 'Please specify details (type of device/metal, anatomical site, year...):',
-    specifyDetailPlaceholder: 'E.g., Coronary stent placed in 2021, metal fragment in left eye...',
+    specifyDetailLabel: 'Please specify details:',
     questions: [
       { id: 1, text: 'Do you have a cardiac pacemaker, artificial heart valve, cochlear implant, neurostimulator, or automated insulin pump?', critical: true },
       { id: 2, text: 'Have you had surgery for cerebral aneurysm clips, vascular stents, bone plates/screws, or other internal metal implants?', critical: true },
@@ -222,7 +220,7 @@ const MRI_TRANSLATIONS = {
     no: 'Non',
     criticalBadge: '⚠️ Contrôle de sécurité obligatoire',
     femaleSectionTitle: '🌸 Section réservée aux patientes',
-    specifyDetailLabel: 'Précisez les détails (type de dispositif/métal, localisation, année...):',
+    specifyDetailLabel: 'Précisez les détails :',
     specifyDetailPlaceholder: 'Ex: Stent coronarien en 2021, éclat métallique dans l\'œil gauche...',
     questions: [
       { id: 1, text: 'Portez-vous un stimulateur cardiaque (pacemaker), une valve cardiaque, un implant cochléaire, un neurostimulateur ou une pompe à insuline?', critical: true },
@@ -305,8 +303,7 @@ const MRI_TRANSLATIONS = {
     no: '否',
     criticalBadge: '⚠️ 重点安全筛查项目',
     femaleSectionTitle: '🌸 女性患者专项核对',
-    specifyDetailLabel: '请详细说明（装置/金属类型、植入部位、手术年份等）：',
-    specifyDetailPlaceholder: '例如：2021年植入心脏支架，2018年左眼铁屑异物等...',
+    specifyDetailLabel: '请注明详细内容：',
     questions: [
       { id: 1, text: '您体内是否安装有心脏起搏器、人工心脏瓣膜、人工耳蜗、神经刺激器或自动胰岛素泵？', critical: true },
       { id: 2, text: '您是否曾植入脑动脉瘤夹、血管支架、骨折钢板钢钉或其他体内金属植入物？', critical: true },
@@ -388,8 +385,7 @@ const MRI_TRANSLATIONS = {
     no: '아니오',
     criticalBadge: '⚠️ 필수 안전 확인 항목',
     femaleSectionTitle: '🌸 여성 환자 전용 항목',
-    specifyDetailLabel: '세부 사항을 입력해 주세요 (장치/금속 종류, 부위, 수술 연도 등):',
-    specifyDetailPlaceholder: '예: 2021년 관상동맥 스텐트 삽입, 2018년 좌안 쇳가루 이물 등...',
+    specifyDetailLabel: '세부 내용을 입력해 주세요:',
     questions: [
       { id: 1, text: '심장박동기, 인공심장판막, 인공와우, 신경자극기 또는 인슐린 펌프를 착용하고 계십니까?', critical: true },
       { id: 2, text: '뇌동맥류 클립, 혈관 스텐트, 골절용 금속판/나사 등 체내 금속 임플란트 수술을 받은 적이 있습니까?', critical: true },
@@ -471,8 +467,7 @@ const MRI_TRANSLATIONS = {
     no: 'いいえ',
     criticalBadge: '⚠️ 必須安全確認項目',
     femaleSectionTitle: '🌸 女性の患者様専用項目',
-    specifyDetailLabel: '詳細をご記入ください（機器/金属の種類、部位、手術年など）：',
-    specifyDetailPlaceholder: '例：2021年に心臓ステント留置、2018年に左眼の鉄粉異物など...',
+    specifyDetailLabel: '詳細をご記入ください：',
     questions: [
       { id: 1, text: '心臓ペースメーカー、人工心臓弁、人工内耳、神経刺激装置、またはインスリンポンプを使用していますか？', critical: true },
       { id: 2, text: '脳動脈瘤クリップ、血管ステント、骨折プレート・ネジ等の体内金属留置手術歴がありますか？', critical: true },
@@ -554,8 +549,7 @@ const MRI_TRANSLATIONS = {
     no: 'Нет',
     criticalBadge: '⚠️ Обязательный пункт безопасности',
     femaleSectionTitle: '🌸 Для женщин',
-    specifyDetailLabel: 'Укажите подробности (тип устройства/металла, область, год операции...):',
-    specifyDetailPlaceholder: 'Например: Коронарный стент в 2021 г., металлическая стружка в левом глазу...',
+    specifyDetailLabel: 'Укажите подробности:',
     questions: [
       { id: 1, text: 'Установлен ли у вас кардиостимулятор, искусственный клапан сердца, кохлеарный имплант, нейростимулятор или инсулиновая помпа?', critical: true },
       { id: 2, text: 'Были ли у вас операции по установке клипс на аневризму мозга, сосудистых стентов, пластин/винтов или металлоконструкций?', critical: true },
@@ -637,8 +631,7 @@ const MRI_TRANSLATIONS = {
     no: 'Nein',
     criticalBadge: '⚠️ Wichtige Sicherheitsprüfung',
     femaleSectionTitle: '🌸 Speziell für Patientinnen',
-    specifyDetailLabel: 'Bitte Details angeben (Art des Geräts/Metalls, Körperstelle, Jahr...):',
-    specifyDetailPlaceholder: 'Z.B.: Koronarstent 2021, Metallsplitter im linken Auge 2018...',
+    specifyDetailLabel: 'Bitte Details angeben:',
     questions: [
       { id: 1, text: 'Tragen Sie einen Herzschrittmacher, eine künstliche Herzklappe, ein Cochlea-Implantat, einen Neurostimulator oder eine Insulinpumpe?', critical: true },
       { id: 2, text: 'Wurden bei Ihnen Hirnaneurysma-Clips, Gefäßstents, Knochenplatten/-schrauben oder metallische Implantate operiert?', critical: true },
@@ -720,8 +713,7 @@ const MRI_TRANSLATIONS = {
     no: 'ไม่มี (ไม่ใช่)',
     criticalBadge: '⚠️ ข้อมูลความปลอดภัยสำคัญมาก',
     femaleSectionTitle: '🌸 สำหรับผู้ป่วยหญิง',
-    specifyDetailLabel: 'โปรดระบุรายละเอียด (ชนิดอุปกรณ์/โลหะ, ตำแหน่ง, ปีที่ผ่าตัด...):',
-    specifyDetailPlaceholder: 'เช่น: ใส่ขดลวดหัวใจปี 2021, สะเก็ดเหล็กที่ตาซ้ายปี 2018...',
+    specifyDetailLabel: 'โปรดระบุรายละเอียด:',
     questions: [
       { id: 1, text: 'ท่านมีเครื่องกระตุ้นหัวใจ, ลิ้นหัวใจเทียม, ประสาทหูเทียม, เครื่องกระตุ้นประสาท หรือเครื่องฉีดอินซูลินอัตโนมัติหรือไม่?', critical: true },
       { id: 2, text: 'ท่านเคยผ่าตัดใส่คลิปหนีบหลอดเลือดสมองโป่งพอง, ขดลวดหลอดเลือด, เหล็กดามกระดูก หรือโลหะดัดกระดูกหรือไม่?', critical: true },
@@ -803,8 +795,7 @@ const MRI_TRANSLATIONS = {
     no: 'नहीं',
     criticalBadge: '⚠️ अनिवार्य सुरक्षा जांच',
     femaleSectionTitle: '🌸 महिला रोगियों के लिए',
-    specifyDetailLabel: 'कृपया विवरण दें (उपकरण/धातु का प्रकार, स्थान, वर्ष...):',
-    specifyDetailPlaceholder: 'उदा.: 2021 में हृदय स्टेंट, 2018 में बाईं आंख में लोहे का कण...',
+    specifyDetailLabel: 'कृपया विवरण लिखें:',
     questions: [
       { id: 1, text: 'क्या आपके शरीर में पेसमेकर, कृत्रिम हृदय वाल्व, कॉकलियर इम्प्लांट, न्यूरोस्टिम्युलेटर या इंसुलिन पंप लगा है?', critical: true },
       { id: 2, text: 'क्या आपके शरीर में एन्यूरिज्म क्लिप, संवहनी स्टेंट, हड्डी की प्लेट/पेंच या कोई धातु इम्प्लांट लगा है?', critical: true },
@@ -887,8 +878,7 @@ const MRI_TRANSLATIONS = {
     no: 'ບໍ່ມີ (ບໍ່)',
     criticalBadge: '⚠️ ຂໍ້ກວດສອບຄວາມປອດໄພສຳຄັນ',
     femaleSectionTitle: '🌸 ສຳລັບຄົນເຈັບເພດຍິງ',
-    specifyDetailLabel: 'ກະລຸນາລະບຸລາຍລະອຽດ (ປະເພດອຸປະກອນ/ໂລຫະ, ຕຳແໜ່ງ, ປີຜ່າຕັດ...):',
-    specifyDetailPlaceholder: 'ຕົວຢ່າງ: ໃສ່ສະເຕັນຫົວໃຈປີ 2021, ເສດເຫຼັກຢູ່ຕາຊ້າຍປີ 2018...',
+    specifyDetailLabel: 'ກະລຸນາລະບຸລາຍລະອຽດ:',
     questions: [
       { id: 1, text: 'ທ່ານມີເຄື່ອງກະຕຸ້ນຫົວໃຈ, ລີ້ນຫົວໃຈທຽມ, ຫູທຽມເອເລັກໂຕຣນິກ, ເຄື່ອງກະຕຸ້ນປະສາດ ຫຼື ປໍ້າອິນຊູລິນ ຫຼື ບໍ່?', critical: true },
       { id: 2, text: 'ທ່ານເຄີຍຜ່າຕັດໃສ່ຄລິບເສັ້ນເລືອດສະໝອງ, ສະເຕັນເສັ້ນເລືອດ, ເຫຼັກດາມກະດູກ ຫຼື ໂລຫະຝັງໃນຮ່າງກາຍ ຫຼື ບໍ່?', critical: true },
@@ -970,8 +960,7 @@ const MRI_TRANSLATIONS = {
     no: 'មិនមាន (ទេ)',
     criticalBadge: '⚠️ ការត្រួតពិនិត្យសុវត្ថិភាពចាំបាច់',
     femaleSectionTitle: '🌸 សម្រាប់អ្នកជំងឺស្ត្រី',
-    specifyDetailLabel: 'សូមបញ្ជាក់ព័ត៌មានលម្អិត (ប្រភេទឧបករណ៍/លោហៈ, ទីតាំង, ឆ្នាំវះកាត់...):',
-    specifyDetailPlaceholder: 'ឧទាហរណ៍៖ ដាក់ស្តង់បេះដូងឆ្នាំ 2021, កម្ទេចដែកនៅភ្នែកឆ្វេងឆ្នាំ 2018...',
+    specifyDetailLabel: 'សូមបញ្ជាក់ព័ត៌មានលម្អិត៖',
     questions: [
       { id: 1, text: 'តើអ្នកមានម៉ាស៊ីនវាស់ចង្វាក់បេះដូង, សន្ទះបេះដូងសិប្បនិម្មិត, ត្រចៀកអេឡិចត្រូនិច, ម៉ាស៊ីនរំញោចប្រសាទ ឬបូមអាំងស៊ុយលីនដែរឬទេ?', critical: true },
       { id: 2, text: 'តើអ្នកធ្លាប់វះកាត់ដាក់ក្លីបសរសៃឈាមខួរក្បាល, ស្ទែនសរសៃឈាម, ដែកភ្ជាប់ឆ្អឹង ឬលោហៈផ្សាំក្នុងខ្លួនដែរឬទេ?', critical: true },

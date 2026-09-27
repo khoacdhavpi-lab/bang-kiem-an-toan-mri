@@ -181,12 +181,12 @@ function renderQuestions(t) {
       </div>
       <div class="question-detail-box" id="q-detail-${q.id}" style="${isCurrentYes ? 'display: block;' : 'display: none;'}">
         <label class="question-detail-label" for="inp-q-detail-${q.id}">
-          ✍️ <span>${t.specifyDetailLabel || 'Ghi rõ chi tiết (loại thiết bị/kim loại, vị trí, năm phẫu thuật...):'}</span>
+          ✍️ <span>${t.specifyDetailLabel || 'Ghi rõ nội dung chi tiết:'}</span>
         </label>
         <input type="text" 
                class="question-detail-input" 
                id="inp-q-detail-${q.id}" 
-               placeholder="${t.specifyDetailPlaceholder || 'Ví dụ: Đặt stent mạch vành năm 2021, hoặc mạt sắt mắt trái...'}" 
+               placeholder="" 
                value="${currentDetailVal.replace(/"/g, '&quot;')}" />
       </div>
     `;
