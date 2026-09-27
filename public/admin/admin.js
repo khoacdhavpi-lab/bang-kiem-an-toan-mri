@@ -48,10 +48,12 @@ function checkAuth() {
       document.getElementById('user-fullname-display').textContent = currentUser.fullName || currentUser.username;
       document.getElementById('user-role-badge').textContent = (currentUser.role || 'KTV').toUpperCase();
 
-      // Nếu chỉ là KTV thông thường (không phải admin), ẩn tab phân quyền
+      // Nếu chỉ là KTV thông thường (không phải admin), ẩn tab phân quyền và tab cài đặt
       if (currentUser.role !== 'admin') {
         const userTab = document.getElementById('nav-tab-users');
         if (userTab) userTab.style.display = 'none';
+        const setTab = document.getElementById('nav-tab-settings');
+        if (setTab) setTab.style.display = 'none';
       }
     } catch (e) {
       console.error(e);
@@ -586,13 +588,9 @@ function printPosterA4() {
  * PHÂN QUYỀN TÀI KHOẢN KTV CẤP DƯỚI (USER MANAGEMENT)
  * ========================================================
  */
-let userAccounts = [
-  { id: 'u1', username: 'admin', fullName: 'Quản trị viên MRI Vĩnh Phúc', role: 'admin', active: true, createdAt: '2026-09-01' },
-  { id: 'u2', username: 'ktv_tuan', fullName: 'KTV Trần Anh Tuấn', role: 'ktv', active: true, createdAt: '2026-09-10' },
-  { id: 'u3', username: 'ktv_lan', fullName: 'KTV Hoàng Thị Lan', role: 'ktv', active: true, createdAt: '2026-09-15' }
-];
+let userAccounts = [];
 
-function initUserManagement() {
+async function initUserManagement() {
   const modal = document.getElementById('modal-create-user');
   const openBtn = document.getElementById('btn-open-create-user-modal');
   const closeBtn = document.getElementById('btn-close-create-user');
@@ -602,83 +600,133 @@ function initUserManagement() {
   if (closeBtn) closeBtn.addEventListener('click', () => modal.classList.remove('open'));
 
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const fullName = document.getElementById('new-user-fullname').value.trim();
-      const username = document.getElementById('new-user-name').value.trim();
+      const username = document.getElementById('new-user-name').value.trim().toLowerCase();
+      const password = document.getElementById('new-user-pass').value.trim();
       const role = document.getElementById('new-user-role').value;
 
+      if (!password) {
+        alert('Vui lòng nhập mật khẩu đăng nhập cho KTV!');
+        return;
+      }
+
+      const submitBtn = form.querySelector('button[type="submit"]');
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang tạo tài khoản...';
+      }
+
       const newUser = {
-        id: 'u' + (userAccounts.length + 1),
+        id: 'u_' + Date.now(),
         username: username,
+        password: password,
         fullName: fullName,
         role: role,
         active: true,
         createdAt: new Date().toISOString().split('T')[0]
       };
 
-      userAccounts.push(newUser);
-      localStorage.setItem('mri_users', JSON.stringify(userAccounts));
+      await CloudDB.saveUser(newUser);
+      userAccounts = await CloudDB.getUsers();
       form.reset();
       modal.classList.remove('open');
       renderUserList();
-      alert(`Đã cấp tài khoản thành công cho ${fullName} (Vai trò: ${role.toUpperCase()})!`);
+
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Tạo tài khoản KTV';
+      }
+
+      alert(`Đã cấp tài khoản thành công!\n\n• Họ và tên: ${fullName}\n• Tên đăng nhập: ${username}\n• Mật khẩu: ${password}\n• Vai trò: ${role.toUpperCase()}`);
     });
   }
 
-  // Khôi phục tài khoản từ storage nếu có
-  const savedUsers = localStorage.getItem('mri_users');
-  if (savedUsers) {
-    try { userAccounts = JSON.parse(savedUsers); } catch (e) {}
-  }
+  // Tải danh sách tài khoản từ Cloud / LocalStorage
+  userAccounts = await CloudDB.getUsers();
+  renderUserList();
 }
 
 function renderUserList() {
   const tbody = document.getElementById('user-table-body');
   if (!tbody) return;
 
-  tbody.innerHTML = userAccounts.map(u => `
-    <tr>
-      <td><strong>${u.fullName}</strong></td>
-      <td><code>${u.username}</code></td>
-      <td>
-        <span class="user-role-tag" style="background: ${u.role === 'admin' ? '#0284c7' : '#0d9488'};">
-          ${u.role.toUpperCase()}
-        </span>
-      </td>
-      <td>
-        <span style="color: ${u.active ? '#059669' : '#dc2626'}; font-weight: 600;">
-          ${u.active ? '● Đang hoạt động' : '○ Tạm khóa'}
-        </span>
-      </td>
-      <td style="color: #64748b; font-size: 12.5px;">${u.createdAt}</td>
-      <td style="text-align: right;">
-        ${u.username !== 'admin' ? `
-          <button type="button" class="admin-btn secondary sm" onclick="toggleUserActive('${u.id}')">
-            ${u.active ? 'Khóa' : 'Mở'}
-          </button>
-          <button type="button" class="admin-btn danger sm" onclick="deleteUser('${u.id}')">
-            Xóa
-          </button>
-        ` : '<span style="font-size:12px; color:#94a3b8;">Tài khoản gốc</span>'}
-      </td>
-    </tr>
-  `).join('');
+  if (!userAccounts || userAccounts.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #94a3b8; padding: 20px;">Chưa có tài khoản nào.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = userAccounts.map(u => {
+    const isRoot = (u.username || '').toLowerCase() === 'admin';
+    const pwdDisplay = u.password ? u.password : 'mrivinhphucvpi';
+
+    return `
+      <tr>
+        <td><strong>${u.fullName || u.username}</strong></td>
+        <td>
+          <code>${u.username}</code>
+          <div style="font-size: 11px; color: #64748b; margin-top: 2px;">
+            Mật khẩu: <span style="font-weight: 600; color: #0284c7;">${pwdDisplay}</span>
+          </div>
+        </td>
+        <td>
+          <span class="user-role-tag" style="background: ${u.role === 'admin' ? '#0284c7' : '#0d9488'};">
+            ${(u.role || 'ktv').toUpperCase()}
+          </span>
+        </td>
+        <td>
+          <span style="color: ${u.active ? '#059669' : '#dc2626'}; font-weight: 600;">
+            ${u.active ? '● Đang hoạt động' : '○ Tạm khóa'}
+          </span>
+        </td>
+        <td style="color: #64748b; font-size: 12.5px;">${u.createdAt || '2026-09-01'}</td>
+        <td style="text-align: right; white-space: nowrap;">
+          ${!isRoot ? `
+            <button type="button" class="admin-btn secondary sm" onclick="resetUserPassword('${u.username}')" title="Đổi mật khẩu cho KTV này">
+              🔑 Đổi MK
+            </button>
+            <button type="button" class="admin-btn secondary sm" onclick="toggleUserActive('${u.username}')">
+              ${u.active ? 'Khóa' : 'Mở'}
+            </button>
+            <button type="button" class="admin-btn danger sm" onclick="deleteUser('${u.username}')">
+              Xóa
+            </button>
+          ` : '<span style="font-size:12px; color:#94a3b8; font-style:italic;">Tài khoản gốc</span>'}
+        </td>
+      </tr>
+    `;
+  }).join('');
 }
 
-window.toggleUserActive = function(id) {
-  const u = userAccounts.find(x => x.id === id);
+window.toggleUserActive = async function(username) {
+  const u = userAccounts.find(x => (x.username || '').toLowerCase() === (username || '').toLowerCase());
   if (u) {
     u.active = !u.active;
-    localStorage.setItem('mri_users', JSON.stringify(userAccounts));
+    await CloudDB.saveUser(u);
+    userAccounts = await CloudDB.getUsers();
     renderUserList();
   }
 };
 
-window.deleteUser = function(id) {
-  if (!confirm('Bạn có chắc chắn muốn xóa tài khoản này không?')) return;
-  userAccounts = userAccounts.filter(x => x.id !== id);
-  localStorage.setItem('mri_users', JSON.stringify(userAccounts));
+window.resetUserPassword = async function(username) {
+  const u = userAccounts.find(x => (x.username || '').toLowerCase() === (username || '').toLowerCase());
+  if (!u) return;
+
+  const newPass = prompt(`Nhập mật khẩu mới cho KTV "${u.fullName || u.username}":`, u.password || '123456');
+  if (newPass && newPass.trim()) {
+    u.password = newPass.trim();
+    await CloudDB.saveUser(u);
+    userAccounts = await CloudDB.getUsers();
+    renderUserList();
+    alert(`Đã đổi mật khẩu cho ${u.fullName || u.username} thành: ${newPass.trim()}`);
+  }
+};
+
+window.deleteUser = async function(username) {
+  if (!confirm(`Bạn có chắc chắn muốn xóa vĩnh viễn tài khoản "${username}" không?`)) return;
+  await CloudDB.deleteUser(username);
+  userAccounts = await CloudDB.getUsers();
   renderUserList();
 };
 
@@ -689,19 +737,32 @@ window.deleteUser = function(id) {
  */
 function initSettings() {
   const form = document.getElementById('settings-form');
-  const saved = localStorage.getItem('mri_hospital_settings');
-  if (saved) {
-    try {
-      hospitalSettings = JSON.parse(saved);
+  
+  // Tải cấu hình đơn vị & danh mục từ CloudDB / LocalStorage
+  CloudDB.getHospitalSettings().then(cfg => {
+    if (cfg) {
+      hospitalSettings = cfg;
       document.getElementById('set-hosp-name').value = hospitalSettings.hospName || '';
       document.getElementById('set-dept-name').value = hospitalSettings.deptName || '';
       document.getElementById('set-quick-pin').value = hospitalSettings.quickPin || '';
       document.getElementById('set-lead-doctor').value = hospitalSettings.leadDoctor || '';
 
-      document.getElementById('poster-disp-hosp').textContent = hospitalSettings.hospName;
-      document.getElementById('poster-disp-dept').textContent = hospitalSettings.deptName;
-    } catch (e) {}
-  }
+      const setDeptList = document.getElementById('set-dept-list');
+      if (setDeptList && hospitalSettings.departments) {
+        setDeptList.value = hospitalSettings.departments.join('\n');
+      }
+
+      const setScanList = document.getElementById('set-scan-list');
+      if (setScanList && hospitalSettings.scanAreas) {
+        setScanList.value = hospitalSettings.scanAreas.join('\n');
+      }
+
+      const posterHosp = document.getElementById('poster-disp-hosp');
+      if (posterHosp && hospitalSettings.hospName) posterHosp.textContent = hospitalSettings.hospName;
+      const posterDept = document.getElementById('poster-disp-dept');
+      if (posterDept && hospitalSettings.deptName) posterDept.textContent = hospitalSettings.deptName;
+    }
+  }).catch(() => {});
 
   // Khởi tạo cấu hình Cloud DB
   const cloudCfg = CloudDB.getConfig();
@@ -797,18 +858,29 @@ function initSettings() {
   }
 
   if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      const setDeptList = document.getElementById('set-dept-list');
+      const setScanList = document.getElementById('set-scan-list');
+
+      const depts = setDeptList ? setDeptList.value.split('\n').map(s => s.trim()).filter(Boolean) : [];
+      const scans = setScanList ? setScanList.value.split('\n').map(s => s.trim()).filter(Boolean) : [];
+
       hospitalSettings = {
         hospName: document.getElementById('set-hosp-name').value.trim(),
         deptName: document.getElementById('set-dept-name').value.trim(),
         quickPin: document.getElementById('set-quick-pin').value.trim(),
-        leadDoctor: document.getElementById('set-lead-doctor').value.trim()
+        leadDoctor: document.getElementById('set-lead-doctor').value.trim(),
+        departments: depts,
+        scanAreas: scans
       };
-      localStorage.setItem('mri_hospital_settings', JSON.stringify(hospitalSettings));
-      document.getElementById('poster-disp-hosp').textContent = hospitalSettings.hospName;
-      document.getElementById('poster-disp-dept').textContent = hospitalSettings.deptName;
-      alert('Đã cập nhật thông tin đơn vị thành công!');
+
+      await CloudDB.saveHospitalSettings(hospitalSettings);
+      const posterHosp = document.getElementById('poster-disp-hosp');
+      if (posterHosp) posterHosp.textContent = hospitalSettings.hospName;
+      const posterDept = document.getElementById('poster-disp-dept');
+      if (posterDept) posterDept.textContent = hospitalSettings.deptName;
+      alert('Đã cập nhật cấu hình thông tin đơn vị và danh mục chọn nhanh thành công!');
     });
   }
 

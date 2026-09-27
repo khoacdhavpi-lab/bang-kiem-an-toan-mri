@@ -164,11 +164,18 @@
           </div>
 
           <!-- Department / Room -->
-          <div class="form-group">
+          <div class="form-group col-span-2">
             <label class="form-label" for="inp-departmentRoom">
               <span id="lbl-departmentRoom">Khoa / Phòng / Địa chỉ</span>
             </label>
-            <input type="text" id="inp-departmentRoom" class="form-input" placeholder="Ví dụ: Khoa Cấp cứu..." />
+            <!-- Dropdown chọn nhanh khoa phòng -->
+            <select id="sel-departmentRoom" class="form-input" style="margin-bottom: 6px; font-weight: 500; cursor: pointer;">
+              <option value="">-- Bấm chọn nhanh Khoa / Phòng gửi chụp --</option>
+            </select>
+            <!-- Các nút bấm nhanh 1-chạm -->
+            <div class="quick-chips-grid" id="dept-chips-container"></div>
+            <!-- Ô nhập tự do hoặc gõ thêm số phòng/giường -->
+            <input type="text" id="inp-departmentRoom" class="form-input" placeholder="Ví dụ: Khoa Cấp cứu, Phòng 302..." />
           </div>
 
           <!-- Scan Area -->
@@ -176,7 +183,12 @@
             <label class="form-label" for="inp-scanArea">
               <span id="lbl-scanArea">Chỉ định chụp (Vùng chụp)</span>
             </label>
-            <input type="text" id="inp-scanArea" class="form-input" placeholder="Ví dụ: MRI Sọ não, Cột sống thắt lưng, Khớp gối..." />
+            <p style="font-size: 12.5px; color: #64748b; margin-top: -2px; margin-bottom: 6px;">
+              💡 <em>Chạm để tích chọn 1 hoặc nhiều vùng chụp có sẵn (hoặc gõ trực tiếp):</em>
+            </p>
+            <!-- Lưới thẻ tích chọn vùng chụp -->
+            <div class="quick-chips-grid" id="scan-chips-container"></div>
+            <input type="text" id="inp-scanArea" class="form-input" placeholder="Ví dụ: MRI Sọ não, MRI Cột sống thắt lưng, Khớp gối..." />
           </div>
         </div>
       </div>

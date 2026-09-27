@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initInstructionAccordion();
   initStaffLoginModal();
   initFormSubmission();
+  initPresetSelections();
 
   // Áp dụng ngôn ngữ mặc định
   applyLanguage(currentLang);
@@ -145,23 +146,9 @@ function renderQuestions(t) {
   if (!container) return;
 
   container.innerHTML = '';
-  let femaleHeaderAdded = false;
+  let femaleCard = null;
 
   t.questions.forEach((q) => {
-    // Nếu câu hỏi dành riêng cho nữ và người dùng đã chọn nữ
-    if (q.femaleOnly) {
-      if (!femaleHeaderAdded) {
-        const femaleBanner = document.createElement('div');
-        femaleBanner.className = 'female-section-header';
-        femaleBanner.id = 'female-section-banner';
-        femaleBanner.innerHTML = `<span>🌸</span> <span>${t.femaleSectionTitle || 'Phần dành riêng cho phụ nữ'}</span>`;
-        // Ẩn nếu bệnh nhân là nam
-        if (selectedGender === 'male') femaleBanner.style.display = 'none';
-        container.appendChild(femaleBanner);
-        femaleHeaderAdded = true;
-      }
-    }
-
     // Thiết lập giá trị mặc định nếu chưa có
     if (questionAnswers[q.id] === undefined) {
       questionAnswers[q.id] = false; // Mặc định là Không (an toàn)
@@ -170,9 +157,6 @@ function renderQuestions(t) {
     const item = document.createElement('div');
     item.className = 'question-item';
     item.id = `q-item-${q.id}`;
-    if (q.femaleOnly && selectedGender === 'male') {
-      item.style.display = 'none';
-    }
 
     const isCurrentYes = questionAnswers[q.id] === true;
 
@@ -181,7 +165,7 @@ function renderQuestions(t) {
         <p class="question-title">
           <span class="question-number">${q.id}.</span> ${q.text}
         </p>
-        ${q.critical ? `<span class="critical-badge">${t.criticalBadge || '⚠️ Khảo sát an toàn bắt buộc'}</span>` : ''}
+        ${q.critical ? `<span class="critical-badge">${t.criticalBadge || '⚠️ Khảo sát kỹ thuật an toàn bắt buộc'}</span>` : ''}
       </div>
       <div class="choice-actions">
         <button type="button" class="choice-btn no-btn ${!isCurrentYes ? 'selected' : ''}" data-qid="${q.id}" data-val="no">
@@ -209,7 +193,23 @@ function renderQuestions(t) {
       noBtn.classList.remove('selected');
     });
 
-    container.appendChild(item);
+    // Nếu là câu hỏi dành riêng cho phụ nữ (câu 14, 15), bỏ vào khung hồng riêng
+    if (q.femaleOnly) {
+      if (!femaleCard) {
+        femaleCard = document.createElement('div');
+        femaleCard.className = 'female-section-card';
+        femaleCard.id = 'female-section-card';
+        femaleCard.innerHTML = `
+          <div class="female-section-title">
+            <span>🌸</span> <span>${t.femaleSectionTitle || 'PHẦN DÀNH RIÊNG CHO PHỤ NỮ'}</span>
+          </div>
+        `;
+        container.appendChild(femaleCard);
+      }
+      femaleCard.appendChild(item);
+    } else {
+      container.appendChild(item);
+    }
   });
 }
 
@@ -279,20 +279,9 @@ function initToggleButtons() {
 }
 
 function updateFemaleQuestionsVisibility(show) {
-  const femaleBanner = document.getElementById('female-section-banner');
-  if (femaleBanner) {
-    femaleBanner.style.display = show ? 'flex' : 'none';
-  }
-
-  // Câu 14 & 15 là dành cho nữ
-  const q14 = document.getElementById('q-item-14');
-  const q15 = document.getElementById('q-item-15');
-  if (q14) q14.style.display = show ? 'flex' : 'none';
-  if (q15) q15.style.display = show ? 'flex' : 'none';
-
-  if (!show) {
-    questionAnswers[14] = false;
-    questionAnswers[15] = false;
+  const femaleCard = document.getElementById('female-section-card');
+  if (femaleCard) {
+    femaleCard.style.display = 'block';
   }
 }
 
@@ -408,6 +397,7 @@ function initFormSubmission() {
       // Reset form
       form.reset();
       sigPad.clear();
+      resetPresetSelections();
       // Đặt lại câu trả lời về Không
       Object.keys(questionAnswers).forEach(k => { questionAnswers[k] = false; });
       applyLanguage(currentLang);
@@ -480,36 +470,201 @@ function initStaffLoginModal() {
 
       const user = document.getElementById('inp-staff-user').value.trim();
       const pass = document.getElementById('inp-staff-pass').value.trim();
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
 
-      // Kiểm tra mật khẩu cố định hoặc API
-      if (pass === 'mrivinhphucvpi' || pass === 'admin123') {
-        localStorage.setItem('mri_staff_token', 'token_' + Date.now());
-        localStorage.setItem('mri_staff_user', JSON.stringify({ username: user || 'admin', role: 'admin', fullName: 'Quản trị viên MRI' }));
-        window.location.href = '/admin/';
-        return;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '⏳ Đang xác thực...';
       }
 
-      // Thử gọi API backend
       try {
-        const res = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: user, password: pass })
-        });
-        const data = await res.json();
-        if (data.success && data.token) {
-          localStorage.setItem('mri_staff_token', data.token);
-          localStorage.setItem('mri_staff_user', JSON.stringify(data.user));
+        const authRes = await CloudDB.authenticate(user, pass);
+        if (authRes.success && authRes.user) {
+          localStorage.setItem('mri_staff_token', 'token_' + Date.now());
+          localStorage.setItem('mri_staff_user', JSON.stringify(authRes.user));
           window.location.href = '/admin/';
           return;
         } else {
-          errBox.textContent = data.message || 'Mật khẩu không chính xác! Vui lòng thử lại.';
+          errBox.textContent = authRes.message || 'Mật khẩu không chính xác! Vui lòng thử lại.';
           errBox.style.display = 'block';
         }
       } catch (err) {
-        errBox.textContent = 'Mật khẩu không đúng (Mặc định: mrivinhphucvpi)';
+        errBox.textContent = 'Lỗi kết nối xác thực: ' + (err.message || 'Vui lòng thử lại');
         errBox.style.display = 'block';
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = '🚀 ĐĂNG NHẬP HỆ THỐNG KTV';
+        }
       }
     });
   }
+}
+
+/**
+ * ========================================================
+ * DANH MỤC CHỌN NHANH KHOA / PHÒNG & CHỈ ĐỊNH CHỤP MRI
+ * ========================================================
+ */
+let selectedScanAreas = new Set();
+
+async function initPresetSelections() {
+  const deptSelect = document.getElementById('sel-departmentRoom');
+  const deptChipsContainer = document.getElementById('dept-chips-container');
+  const inpDept = document.getElementById('inp-departmentRoom');
+
+  const scanChipsContainer = document.getElementById('scan-chips-container');
+  const inpScan = document.getElementById('inp-scanArea');
+
+  // Lấy cài đặt từ CloudDB hoặc danh mục chuẩn y khoa mặc định
+  let settings = null;
+  try {
+    settings = await CloudDB.getHospitalSettings();
+  } catch (e) {}
+
+  const depts = (settings && Array.isArray(settings.departments) && settings.departments.length > 0)
+    ? settings.departments
+    : [
+        'Khoa Khám bệnh',
+        'Khoa Cấp cứu',
+        'Khoa Ngoại Thần kinh - Cột sống',
+        'Khoa Nội Thần kinh',
+        'Khoa Chấn thương Chỉnh hình',
+        'Khoa Ung bướu',
+        'Khoa Hồi sức tích cực (ICU)',
+        'Khoa Nội Tổng hợp - Tim mạch',
+        'Khoa Nhi',
+        'Phòng khám Theo yêu cầu',
+        'Tự đến khám (Tự nguyện)'
+      ];
+
+  const scanAreas = (settings && Array.isArray(settings.scanAreas) && settings.scanAreas.length > 0)
+    ? settings.scanAreas
+    : [
+        'MRI Sọ não',
+        'MRI Mạch máu não (MRA)',
+        'MRI Cột sống thắt lưng',
+        'MRI Cột sống cổ',
+        'MRI Cột sống ngực',
+        'MRI Khớp gối',
+        'MRI Khớp vai',
+        'MRI Khớp háng',
+        'MRI Vùng bụng - Chậu',
+        'MRI Gan - Mật - Tụy',
+        'MRI Tuyến vú',
+        'MRI Cổ chân / Bàn chân'
+      ];
+
+  // Helper gán icon theo vùng chụp
+  function getScanIcon(name) {
+    const n = name.toLowerCase();
+    if (n.includes('sọ') || n.includes('não') || n.includes('mra') || n.includes('mạch')) return '🧠';
+    if (n.includes('cột sống') || n.includes('lưng') || n.includes('cổ') || n.includes('ngực')) return '🦴';
+    if (n.includes('gối') || n.includes('chân')) return '🦵';
+    if (n.includes('vai') || n.includes('tay')) return '💪';
+    if (n.includes('háng')) return '🦴';
+    if (n.includes('bụng') || n.includes('chậu')) return '🫄';
+    if (n.includes('gan') || n.includes('mật') || n.includes('tụy')) return '🫁';
+    if (n.includes('vú')) return '🌸';
+    if (n.includes('tim')) return '🫀';
+    return '🔍';
+  }
+
+  // 1. Dropdown chọn nhanh Khoa / Phòng
+  if (deptSelect) {
+    deptSelect.innerHTML = '<option value="">-- Bấm chọn nhanh Khoa / Phòng gửi chụp --</option>';
+    depts.forEach(d => {
+      const opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = d;
+      deptSelect.appendChild(opt);
+    });
+
+    deptSelect.addEventListener('change', () => {
+      if (deptSelect.value) {
+        inpDept.value = deptSelect.value;
+        if (deptChipsContainer) {
+          deptChipsContainer.querySelectorAll('.quick-chip').forEach(c => {
+            c.classList.toggle('active', c.dataset.val === deptSelect.value);
+          });
+        }
+      }
+    });
+  }
+
+  // Nút bấm nhanh các khoa phổ biến (1-chạm)
+  if (deptChipsContainer) {
+    deptChipsContainer.innerHTML = '';
+    const topDepts = depts.slice(0, 6);
+    topDepts.forEach(d => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'quick-chip';
+      chip.dataset.val = d;
+      chip.innerHTML = `<span class="chip-check">✓</span> <span>${d}</span>`;
+      chip.addEventListener('click', () => {
+        inpDept.value = d;
+        if (deptSelect) deptSelect.value = d;
+        deptChipsContainer.querySelectorAll('.quick-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+      });
+      deptChipsContainer.appendChild(chip);
+    });
+  }
+
+  // 2. Thẻ tích chọn Chỉ định chụp (Vùng chụp)
+  if (scanChipsContainer) {
+    scanChipsContainer.innerHTML = '';
+    scanAreas.forEach(areaName => {
+      const icon = getScanIcon(areaName);
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'quick-chip';
+      chip.dataset.area = areaName;
+      chip.innerHTML = `<span class="chip-check">✓</span> <span class="chip-icon">${icon}</span> <span>${areaName}</span>`;
+
+      chip.addEventListener('click', () => {
+        if (selectedScanAreas.has(areaName)) {
+          selectedScanAreas.delete(areaName);
+          chip.classList.remove('active');
+        } else {
+          selectedScanAreas.add(areaName);
+          chip.classList.add('active');
+        }
+        inpScan.value = Array.from(selectedScanAreas).join(', ');
+      });
+
+      scanChipsContainer.appendChild(chip);
+    });
+  }
+
+  // Khi người dùng gõ tay vào ô inp-scanArea, đồng bộ trạng thái thẻ chip
+  if (inpScan) {
+    inpScan.addEventListener('input', () => {
+      const currentVal = inpScan.value;
+      if (scanChipsContainer) {
+        scanChipsContainer.querySelectorAll('.quick-chip').forEach(c => {
+          const area = c.dataset.area;
+          const isPresent = currentVal.toLowerCase().includes(area.toLowerCase());
+          c.classList.toggle('active', isPresent);
+          if (isPresent) selectedScanAreas.add(area);
+          else selectedScanAreas.delete(area);
+        });
+      }
+    });
+  }
+}
+
+function resetPresetSelections() {
+  selectedScanAreas.clear();
+  const scanChipsContainer = document.getElementById('scan-chips-container');
+  if (scanChipsContainer) {
+    scanChipsContainer.querySelectorAll('.quick-chip').forEach(c => c.classList.remove('active'));
+  }
+  const deptChipsContainer = document.getElementById('dept-chips-container');
+  if (deptChipsContainer) {
+    deptChipsContainer.querySelectorAll('.quick-chip').forEach(c => c.classList.remove('active'));
+  }
+  const deptSelect = document.getElementById('sel-departmentRoom');
+  if (deptSelect) deptSelect.value = '';
 }
