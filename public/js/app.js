@@ -230,6 +230,7 @@ function renderQuestions(t) {
         femaleCard = document.createElement('div');
         femaleCard.className = 'female-section-card';
         femaleCard.id = 'female-section-card';
+        femaleCard.style.display = selectedGender === 'female' ? 'block' : 'none';
         femaleCard.innerHTML = `
           <div class="female-section-title">
             <span>🌸</span> <span>${t.femaleSectionTitle || 'PHẦN DÀNH RIÊNG CHO PHỤ NỮ'}</span>
@@ -242,6 +243,10 @@ function renderQuestions(t) {
       container.appendChild(item);
     }
   });
+
+  if (femaleCard) {
+    femaleCard.style.display = selectedGender === 'female' ? 'block' : 'none';
+  }
 }
 
 /**
@@ -312,7 +317,21 @@ function initToggleButtons() {
 function updateFemaleQuestionsVisibility(show) {
   const femaleCard = document.getElementById('female-section-card');
   if (femaleCard) {
-    femaleCard.style.display = 'block';
+    femaleCard.style.display = show ? 'block' : 'none';
+    if (!show) {
+      [8, 9].forEach(id => {
+        questionAnswers[id] = false;
+        delete questionDetails[id];
+        const noBtn = document.querySelector(`.no-btn[data-qid="${id}"]`);
+        const yesBtn = document.querySelector(`.yes-btn[data-qid="${id}"]`);
+        if (noBtn) noBtn.classList.add('selected');
+        if (yesBtn) yesBtn.classList.remove('selected');
+        const detailBox = document.getElementById(`q-detail-${id}`);
+        if (detailBox) detailBox.style.display = 'none';
+        const detailInp = document.getElementById(`inp-q-detail-${id}`);
+        if (detailInp) detailInp.value = '';
+      });
+    }
   }
 }
 

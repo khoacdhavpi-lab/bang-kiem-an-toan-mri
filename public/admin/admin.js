@@ -347,8 +347,10 @@ window.openDetailModal = function(id) {
     return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
-  qContainer.innerHTML = viQuestions.map(q => {
-    const ansYes = answers[q.id] === true;
+  qContainer.innerHTML = viQuestions
+    .filter(q => !(sub.gender !== 'female' && q.femaleOnly))
+    .map(q => {
+      const ansYes = answers[q.id] === true;
     const isDanger = ansYes && q.critical;
     const detail = answerDetails[q.id] || '';
     return `
@@ -450,12 +452,14 @@ window.printChecklistA4 = function(id) {
   }
 
   let rowsHtml = '';
+  let rowIdx = 1;
   viQuestions.forEach(q => {
+    if (sub.gender !== 'female' && q.femaleOnly) return;
     const isYes = answers[q.id] === true;
     const detail = answerDetails[q.id] || '';
     rowsHtml += `
       <tr>
-        <td class="print-center" style="width: 28px;">${q.id}</td>
+        <td class="print-center" style="width: 28px;">${rowIdx++}</td>
         <td>
           <div style="font-weight: ${q.critical ? '600' : 'normal'};">${q.text}</div>
           ${isYes && detail ? `<div style="font-size: 8pt; font-style: italic; color: #b91c1c; margin-top: 2px;">↳ Chi tiết: <strong>${escPrint(detail)}</strong></div>` : ''}
