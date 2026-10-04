@@ -97,6 +97,10 @@ const CloudDB = {
           // Chuyển object Firebase thành mảng và sắp xếp thời gian mới nhất lên đầu
           const list = Object.keys(data).map(key => ({ ...data[key], id: data[key].id || key }));
           list.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+          // Tự động lưu bản sao snapshot dự phòng vào LocalStorage (chống mất dữ liệu)
+          try {
+            localStorage.setItem('mri_submissions_snapshot', JSON.stringify(list));
+          } catch (e) {}
           return list;
         }
       } catch (err) {
@@ -115,8 +119,10 @@ const CloudDB = {
       console.warn('API /api/checklists không phản hồi:', err);
     }
 
-    // 3. Fallback: LocalStorage
-    return JSON.parse(localStorage.getItem('mri_submissions') || '[]');
+    // 3. Fallback: LocalStorage & Snapshot dự phòng
+    const local = JSON.parse(localStorage.getItem('mri_submissions') || '[]');
+    if (local && local.length > 0) return local;
+    return JSON.parse(localStorage.getItem('mri_submissions_snapshot') || '[]');
   },
 
   /**
@@ -185,6 +191,75 @@ const CloudDB = {
     } catch (e) {}
 
     return true;
+  },
+
+  /**
+   * Phục hồi toàn bộ cơ sở dữ liệu từ file sao lưu JSON (Khôi phục thảm họa)
+   */
+  async restoreDatabase(backupData) {
+    if (!backupData) return { success: false, message: 'Dữ liệu sao lưu trống!' };
+    const config = this.getConfig();
+    let restoredCount = 0;
+
+    // 1. Phục hồi Checklists
+    if (Array.isArray(backupData.checklists) && backupData.checklists.length > 0) {
+      // Lưu vào LocalStorage
+      try {
+        localStorage.setItem('mri_submissions', JSON.stringify(backupData.checklists));
+        localStorage.setItem('mri_submissions_snapshot', JSON.stringify(backupData.checklists));
+      } catch (e) {}
+
+      // Đồng bộ lên Firebase
+      if (config.firebaseUrl) {
+        try {
+          let baseUrl = config.firebaseUrl.replace(/\/+$/, '');
+          if (!baseUrl.startsWith('http')) baseUrl = 'https://' + baseUrl;
+
+          const checklistObj = {};
+          backupData.checklists.forEach(item => {
+            if (item.id) checklistObj[item.id] = item;
+          });
+
+          await fetch(`${baseUrl}/checklists.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(checklistObj)
+          });
+        } catch (err) {
+          console.error('Lỗi đẩy dữ liệu phục hồi lên Firebase:', err);
+        }
+      }
+      restoredCount = backupData.checklists.length;
+    }
+
+    // 2. Phục hồi Settings nếu có
+    if (backupData.settings && typeof backupData.settings === 'object') {
+      try {
+        await this.saveHospitalSettings(backupData.settings);
+      } catch (e) {}
+    }
+
+    // 3. Phục hồi Users nếu có
+    if (Array.isArray(backupData.users) && backupData.users.length > 0) {
+      try {
+        localStorage.setItem('mri_users', JSON.stringify(backupData.users));
+        if (config.firebaseUrl) {
+          let baseUrl = config.firebaseUrl.replace(/\/+$/, '');
+          if (!baseUrl.startsWith('http')) baseUrl = 'https://' + baseUrl;
+          const userObj = {};
+          backupData.users.forEach(u => {
+            if (u.username) userObj[u.username] = u;
+          });
+          await fetch(`${baseUrl}/users.json`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(userObj)
+          });
+        }
+      } catch (e) {}
+    }
+
+    return { success: true, count: restoredCount };
   },
 
   /**

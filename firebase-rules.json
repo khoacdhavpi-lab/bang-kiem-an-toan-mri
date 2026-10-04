@@ -1,0 +1,28 @@
+{
+  "rules": {
+    "checklists": {
+      ".read": true,
+      ".indexOn": ["submittedAt", "hasHighRisk"],
+      "$checklistId": {
+        ".read": true,
+        ".write": true,
+        ".validate": "newData.hasChildren(['fullName', 'submittedAt']) || !newData.exists()"
+      }
+    },
+    "settings": {
+      ".read": true,
+      ".write": true
+    },
+    "users": {
+      ".read": true,
+      "$username": {
+        ".read": true,
+        ".write": true
+      }
+    },
+    "_ping": {
+      ".read": true,
+      ".write": true
+    }
+  }
+}

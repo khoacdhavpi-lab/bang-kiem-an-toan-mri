@@ -937,7 +937,7 @@ function initSettings() {
         testResultEl.style.background = '#fef2f2';
         testResultEl.style.border = '1px solid #fecaca';
         testResultEl.style.color = '#991b1b';
-        testResultEl.innerHTML = `❌ <strong>KẾT NỐI THẤT BẠI:</strong> ${err.message}. Vui lòng kiểm tra lại URL Firebase và đảm bảo quyền Rules trong Firebase đã đặt <code>".read": true, ".write": true</code>.`;
+        testResultEl.innerHTML = `❌ <strong>KẾT NỐI THẤT BẠI:</strong> ${err.message}. Vui lòng kiểm tra lại URL Firebase và đảm bảo đã cấu hình Rules trong mục Realtime Database.`;
       }
     });
   }
@@ -969,7 +969,219 @@ function initSettings() {
     });
   }
 
+  initBackupAndSecurity();
   setupRealtimeSubscription();
+}
+
+/**
+ * Quản lý Sao lưu & Phục hồi dữ liệu phòng chống thảm họa / tấn công mạng
+ */
+function initBackupAndSecurity() {
+  const btnExport = document.getElementById('btn-export-backup');
+  const btnTriggerRestore = document.getElementById('btn-trigger-restore');
+  const inpRestoreFile = document.getElementById('inp-restore-file');
+  const statusResult = document.getElementById('backup-status-result');
+
+  const btnViewRules = document.getElementById('btn-view-rules-code');
+  const rulesCodeBox = document.getElementById('rules-code-box');
+  const txtRulesCode = document.getElementById('txt-rules-code');
+  const btnCopyRules = document.getElementById('btn-copy-rules');
+
+  const secureRulesJson = JSON.stringify({
+    "rules": {
+      "checklists": {
+        ".read": true,
+        ".indexOn": ["submittedAt", "hasHighRisk"],
+        "$checklistId": {
+          ".read": true,
+          ".write": true,
+          ".validate": "newData.hasChildren(['fullName', 'submittedAt']) || !newData.exists()"
+        }
+      },
+      "settings": {
+        ".read": true,
+        ".write": true
+      },
+      "users": {
+        ".read": true,
+        "$username": {
+          ".read": true,
+          ".write": true
+        }
+      },
+      "_ping": {
+        ".read": true,
+        ".write": true
+      }
+    }
+  }, null, 2);
+
+  // 1. Xem & Sao chép Rules bảo mật
+  if (btnViewRules && rulesCodeBox && txtRulesCode) {
+    txtRulesCode.value = secureRulesJson;
+    btnViewRules.addEventListener('click', () => {
+      const isHidden = rulesCodeBox.style.display === 'none' || !rulesCodeBox.style.display;
+      rulesCodeBox.style.display = isHidden ? 'block' : 'none';
+      btnViewRules.textContent = isHidden ? '🔼 Thu gọn mã Rules' : '📋 Xem & Sao chép bộ Rules chuẩn bảo mật';
+    });
+  }
+
+  if (btnCopyRules && txtRulesCode) {
+    btnCopyRules.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(txtRulesCode.value);
+        const originalText = btnCopyRules.textContent;
+        btnCopyRules.textContent = '✅ Đã sao chép vào bộ nhớ tạm!';
+        btnCopyRules.style.background = '#059669';
+        setTimeout(() => {
+          btnCopyRules.textContent = originalText;
+          btnCopyRules.style.background = '';
+        }, 2500);
+      } catch (err) {
+        txtRulesCode.select();
+        document.execCommand('copy');
+        alert('Đã sao chép mã Rules vào bộ nhớ tạm!');
+      }
+    });
+  }
+
+  // 2. Xuất bản sao lưu dữ liệu toàn phần (JSON Backup)
+  if (btnExport) {
+    btnExport.addEventListener('click', async () => {
+      try {
+        if (statusResult) {
+          statusResult.style.display = 'block';
+          statusResult.style.background = '#f8fafc';
+          statusResult.style.color = '#334155';
+          statusResult.style.border = '1px solid #cbd5e1';
+          statusResult.innerHTML = '⏳ Đang thu thập và đóng gói toàn bộ dữ liệu...';
+        }
+
+        const freshChecklists = await CloudDB.getChecklists();
+        const freshSettings = await CloudDB.getHospitalSettings();
+        const freshUsers = await CloudDB.getUsers();
+
+        const backupPayload = {
+          system: 'MRI Safety Checklist Online - BV ĐK Vĩnh Phúc VPI',
+          version: '2.0-secure',
+          exportedAt: new Date().toISOString(),
+          exportedBy: currentUser ? (currentUser.fullName || currentUser.username) : 'Admin',
+          totalChecklists: freshChecklists.length,
+          totalUsers: freshUsers.length,
+          settings: freshSettings,
+          users: freshUsers,
+          checklists: freshChecklists
+        };
+
+        const jsonStr = JSON.stringify(backupPayload, null, 2);
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        
+        const now = new Date();
+        const dateStr = now.toISOString().slice(0, 10);
+        const timeStr = `${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}`;
+        a.href = url;
+        a.download = `MRI_VPI_Safety_Backup_${dateStr}_${timeStr}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        if (statusResult) {
+          statusResult.style.background = '#ecfdf5';
+          statusResult.style.border = '1px solid #a7f3d0';
+          statusResult.style.color = '#065f46';
+          statusResult.innerHTML = `✅ <strong>SAO LƯU THÀNH CÔNG!</strong> Đã tải tệp về máy gồm <strong>${freshChecklists.length}</strong> phiếu bệnh nhân, danh mục cấu hình và <strong>${freshUsers.length}</strong> tài khoản KTV. Hãy lưu trữ file này cẩn thận ở ổ đĩa an toàn.`;
+        }
+      } catch (err) {
+        console.error('Lỗi khi xuất sao lưu:', err);
+        if (statusResult) {
+          statusResult.style.background = '#fef2f2';
+          statusResult.style.border = '1px solid #fecaca';
+          statusResult.style.color = '#991b1b';
+          statusResult.innerHTML = `❌ <strong>LỖI SAO LƯU:</strong> ${err.message}`;
+        }
+      }
+    });
+  }
+
+  // 3. Phục hồi dữ liệu từ file Backup JSON
+  if (btnTriggerRestore && inpRestoreFile) {
+    btnTriggerRestore.addEventListener('click', () => {
+      inpRestoreFile.value = '';
+      inpRestoreFile.click();
+    });
+
+    inpRestoreFile.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const rawContent = event.target.result;
+          let parsedData = JSON.parse(rawContent);
+
+          let checklistsToRestore = [];
+          if (Array.isArray(parsedData)) {
+            checklistsToRestore = parsedData;
+            parsedData = { checklists: checklistsToRestore };
+          } else if (Array.isArray(parsedData.checklists)) {
+            checklistsToRestore = parsedData.checklists;
+          }
+
+          const count = checklistsToRestore.length;
+          const confirmMsg = `⚠️ BẠN CÓ CHẮC CHẮN MUỐN PHỤC HỒI DỮ LIỆU?\n\n` +
+            `• Tệp sao lưu: ${file.name}\n` +
+            `• Số lượng phiếu khám phát hiện: ${count} phiếu\n` +
+            `• Kèm cấu hình hệ thống & tài khoản KTV\n\n` +
+            `Hành động này sẽ khôi phục dữ liệu lên CSDL Firebase và bộ nhớ nội bộ. Tiếp tục thực hiện?`;
+
+          if (!confirm(confirmMsg)) return;
+
+          if (statusResult) {
+            statusResult.style.display = 'block';
+            statusResult.style.background = '#eff6ff';
+            statusResult.style.color = '#1e40af';
+            statusResult.style.border = '1px solid #bfdbfe';
+            statusResult.innerHTML = `⏳ Đang phục hồi dữ liệu lên đám mây... Vui lòng không đóng trình duyệt.`;
+          }
+
+          const result = await CloudDB.restoreDatabase(parsedData);
+
+          if (result && result.success) {
+            await fetchSubmissions();
+            if (typeof renderUserList === 'function') {
+              userAccounts = await CloudDB.getUsers();
+              renderUserList();
+            }
+
+            if (statusResult) {
+              statusResult.style.background = '#ecfdf5';
+              statusResult.style.border = '1px solid #a7f3d0';
+              statusResult.style.color = '#065f46';
+              statusResult.innerHTML = `✅ <strong>PHỤC HỒI DỮ LIỆU THÀNH CÔNG!</strong> Đã nạp lại <strong>${result.count || count}</strong> phiếu khám cùng toàn bộ thiết lập hệ thống.`;
+            }
+            alert(`✅ PHỤC HỒI DỮ LIỆU THÀNH CÔNG!\nĐã nạp lại ${result.count || count} phiếu khám an toàn MRI lên hệ thống.`);
+          } else {
+            throw new Error((result && result.message) || 'Không thể phục hồi dữ liệu');
+          }
+        } catch (err) {
+          console.error('Lỗi khi đọc file phục hồi:', err);
+          if (statusResult) {
+            statusResult.style.background = '#fef2f2';
+            statusResult.style.border = '1px solid #fecaca';
+            statusResult.style.color = '#991b1b';
+            statusResult.innerHTML = `❌ <strong>LỖI PHỤC HỒI:</strong> Tệp không hợp lệ hoặc bị lỗi cấu trúc (${err.message}).`;
+          }
+          alert(`❌ Lỗi: File sao lưu không hợp lệ hoặc bị lỗi cấu trúc: ${err.message}`);
+        }
+      };
+
+      reader.readAsText(file);
+    });
+  }
 }
 
 function setupRealtimeSubscription() {
