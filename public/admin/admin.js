@@ -1022,7 +1022,7 @@ function initBackupAndSecurity() {
     btnViewRules.addEventListener('click', () => {
       const isHidden = rulesCodeBox.style.display === 'none' || !rulesCodeBox.style.display;
       rulesCodeBox.style.display = isHidden ? 'block' : 'none';
-      btnViewRules.textContent = isHidden ? '🔼 Thu gọn mã Rules' : '📋 Xem & Sao chép bộ Rules chuẩn bảo mật';
+      btnViewRules.textContent = isHidden ? '🔼 Thu gọn mã Rules' : '📋 Xem & Sao chép bộ Rules bảo mật';
     });
   }
 
